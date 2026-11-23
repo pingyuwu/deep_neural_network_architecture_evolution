@@ -1,0 +1,2345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="从深度神经网络的发展历史中理解架构创新背后的共同规律，并建立面向未来的架构设计方法。">
+<title>深度神经网络的进化密码：从解决一个难题，到设计下一代架构</title>
+<script>
+  window.MathJax = {
+    tex: {inlineMath: [['\\(', '\\)'], ['$', '$']], displayMath: [['\\[', '\\]'], ['$$', '$$']] },
+    options: {skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']}
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+:root {
+  --bg: #f6f7f9;
+  --paper: #ffffff;
+  --ink: #20242b;
+  --muted: #68717d;
+  --line: #e3e7ec;
+  --accent: #265f83;
+  --accent-soft: #edf5fa;
+  --warm: #fff8e8;
+  --code: #f2f4f7;
+  --shadow: 0 12px 36px rgba(25, 40, 55, .07);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: 16px;
+  line-height: 1.9;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: #123f5d; }
+.page { max-width: 1120px; margin: 0 auto; padding: 38px 24px 90px; }
+.hero {
+  padding: 44px 48px 38px;
+  background: linear-gradient(135deg, #ffffff 0%, #f2f7fb 100%);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+.eyebrow { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; margin-bottom: 12px; }
+.hero h1 { font-size: clamp(30px, 4.4vw, 43px); line-height: 1.35; letter-spacing: -.035em; margin: 0 0 14px; color: #172b3b; }
+.hero .subtitle { margin: 0; color: var(--muted); font-size: 17px; line-height: 1.7; }
+.meta { margin-top: 22px; color: #7d8792; font-size: 12px; letter-spacing: .04em; }
+.toc-card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 22px 28px; margin: 24px 0 28px; box-shadow: 0 4px 16px rgba(25,40,55,.035); }
+.toc-card summary { cursor: pointer; color: #263f52; font-weight: 750; font-size: 17px; }
+.toc-list { columns: 2; column-gap: 42px; margin: 16px 0 0; padding-left: 22px; }
+.toc-list li { break-inside: avoid; margin: 4px 0; line-height: 1.55; }
+.toc-list .toc-major { font-weight: 700; margin-top: 9px; }
+.toc-list .toc-minor { margin-left: 12px; font-size: 13px; color: var(--muted); }
+.article { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 46px 58px 64px; box-shadow: var(--shadow); }
+.article h1 { display: none; }
+.article h2 { font-size: 27px; line-height: 1.45; margin: 58px 0 22px; padding-top: 20px; border-top: 1px solid var(--line); color: #173b54; }
+.article h2:first-of-type { margin-top: 0; border-top: 0; padding-top: 0; }
+.article h3 { font-size: 21px; line-height: 1.5; margin: 40px 0 14px; color: #245d7c; }
+.article h4 { font-size: 18px; margin: 28px 0 10px; color: #3d596d; }
+.article p { margin: 0 0 15px; }
+.article strong { color: #172f41; }
+.article ul, .article ol { padding-left: 1.55em; margin: 8px 0 20px; }
+.article li { margin: 5px 0; padding-left: .1em; }
+.article blockquote { border-left: 4px solid #80a9c2; background: var(--accent-soft); padding: 12px 18px; margin: 18px 0; color: #3f596b; }
+.article hr { border: 0; border-top: 1px solid var(--line); margin: 36px 0; }
+.article code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--code); border-radius: 4px; padding: 2px 5px; font-size: .88em; }
+.article pre { overflow-x: auto; background: var(--code); padding: 16px; border-radius: 8px; }
+.article table { width: 100%; border-collapse: collapse; margin: 22px 0 26px; font-size: 14px; line-height: 1.65; display: block; overflow-x: auto; }
+.article th, .article td { border: 1px solid var(--line); padding: 10px 12px; text-align: left; vertical-align: top; min-width: 100px; }
+.article th { background: #eef3f7; color: #29475d; font-weight: 750; }
+.article tr:nth-child(even) td { background: #fbfcfd; }
+.math-block { overflow-x: auto; background: #f7f9fb; border-left: 3px solid #81a9c2; padding: 12px 16px; margin: 18px 0 22px; border-radius: 0 8px 8px 0; }
+.concept-figure { margin: 22px 0 28px; padding: 20px 18px 14px; border: 1px solid #dce6ed; border-radius: 12px; background: #f8fbfd; }
+.flowline { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 9px; margin: 8px 0; color: #214b67; font-size: 14px; text-align: center; }
+.flowline span { padding: 7px 12px; border: 1px solid #c7d9e5; border-radius: 8px; background: #fff; font-weight: 700; }
+.flowline b { color: #7896a9; font-weight: 600; }
+.concept-figure figcaption { color: var(--muted); text-align: center; font-size: 13px; margin-top: 13px; line-height: 1.6; }
+.article > p:last-child { margin-bottom: 0; }
+.footer { color: #7b858f; font-size: 12px; text-align: center; margin-top: 24px; }
+.backtop { position: fixed; right: 22px; bottom: 22px; padding: 9px 13px; border-radius: 30px; border: 1px solid #d4e0e8; background: rgba(255,255,255,.93); color: #315a73; text-decoration: none; font-size: 13px; box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+@media (max-width: 760px) {
+  .page { padding: 14px 10px 48px; }
+  .hero { padding: 28px 23px 24px; border-radius: 13px; }
+  .hero .subtitle { font-size: 15px; }
+  .toc-card { padding: 17px 18px; }
+  .toc-list { columns: 1; }
+  .article { padding: 28px 21px 42px; border-radius: 13px; font-size: 15px; }
+  .article h2 { font-size: 23px; margin-top: 44px; }
+  .article h3 { font-size: 19px; margin-top: 32px; }
+  .article h4 { font-size: 17px; }
+  .article table { font-size: 12px; }
+  .flowline { font-size: 12px; gap: 5px; }
+  .flowline span { padding: 6px 8px; }
+}
+@media print {
+  body { background: #fff; font-size: 11pt; }
+  .page { max-width: none; padding: 0; }
+  .hero, .article { box-shadow: none; border: 0; border-radius: 0; }
+  .toc-card, .backtop { display: none; }
+  .article { padding: 0; }
+  .article h2, .article h3 { break-after: avoid; }
+  table, figure { break-inside: avoid; }
+  a { color: inherit; text-decoration: none; }
+}
+</style>
+</head>
+<body>
+<div class="page" id="top">
+  <header class="hero">
+    <div class="eyebrow">Architecture History · Principles · Design Framework</div>
+    <h1>深度神经网络的进化密码：从解决一个难题，到设计下一代架构</h1>
+    <p class="subtitle">从感知机、ResNet、Transformer 到 MoE：六十多年架构创新背后的共同规律</p>
+    <div class="meta">完整文章 · 六大部分 · 四个附录 · 公式支持 MathJax</div>
+  </header>
+  <details class="toc-card" open>
+    <summary>文章目录（点击章节标题可跳转）</summary>
+    <ul class="toc-list"><li class="toc-major"><a href="#section-1">——从感知机、ResNet、Transformer 到 MoE：六十多年架构创新背后的共同规律</a></li><li class="toc-major"><a href="#section-2">引言：为什么神经网络不能简单地「堆得更大」？</a></li><li class="toc-major"><a href="#section-3">第一部分：六十多年架构进化史——研究者究竟在解决什么问题？</a></li><li class="toc-major"><a href="#section-4">第一章：让机器学会表达复杂关系——从感知机到多层神经网络</a></li><li class="toc-minor"><a href="#section-4-1">1.1 最早的神经网络，为什么连简单问题都解决不了？</a></li><li class="toc-minor"><a href="#section-4-2">1.2 多层网络：给神经网络增加「中间思考过程」</a></li><li class="toc-minor"><a href="#section-4-3">1.3 反向传播：机器终于知道应该怎样修改自己</a></li><li class="toc-major"><a href="#section-5">第二章：让学习信号穿越漫长的网络——从梯度消失到 LSTM</a></li><li class="toc-minor"><a href="#section-5-1">2.1 网络越深，为什么越学不到前面的内容？</a></li><li class="toc-minor"><a href="#section-5-2">2.2 LSTM：给学习信号修一条特殊通道</a></li><li class="toc-minor"><a href="#section-5-3">2.3 这次突破还留下了什么问题？</a></li><li class="toc-major"><a href="#section-6">第三章：让网络保持稳定——从 Xavier、He 到归一化</a></li><li class="toc-minor"><a href="#section-6-1">3.1 梯度能够传播，不代表网络就能稳定工作</a></li><li class="toc-minor"><a href="#section-6-2">3.2 Xavier 初始化：让信号不要越传越偏</a></li><li class="toc-minor"><a href="#section-6-3">3.3 ReLU 与 He 初始化：让深层网络更容易训练</a></li><li class="toc-minor"><a href="#section-6-4">3.4 BatchNorm 和 LayerNorm：给不同层的信号重新校准</a></li><li class="toc-minor"><a href="#section-6-5">3.5 深层网络的训练开始从经验走向理论</a></li><li class="toc-major"><a href="#section-7">第四章：为什么网络越深，反而可能越难训练？——ResNet 的革命</a></li><li class="toc-minor"><a href="#section-7-1">4.1 一个违反直觉的实验结果</a></li><li class="toc-minor"><a href="#section-7-2">4.2 Highway Network：先给信息传播开辟高速公路</a></li><li class="toc-minor"><a href="#section-7-3">4.3 ResNet：与其学习完整结果，不如学习需要改变的部分</a></li><li class="toc-minor"><a href="#section-7-4">4.4 Pre-LN：把归一化放在哪里，也是一门学问</a></li><li class="toc-minor"><a href="#section-7-5">4.5 更进一步：不使用归一化，也可能训练极深网络</a></li><li class="toc-minor"><a href="#section-7-6">4.6 一个更加深刻的认识：网络深度与数值积分</a></li><li class="toc-major"><a href="#section-8">第五章：如何用更少的资源做更多计算？——从 CNN 到高效网络</a></li><li class="toc-minor"><a href="#section-8-1">5.1 为什么神经网络不能让每个神经元都和所有其他神经元连接？</a></li><li class="toc-minor"><a href="#section-8-2">5.2 CNN：利用局部连接和权重共享</a></li><li class="toc-minor"><a href="#section-8-3">5.3 AlexNet：硬件限制也会创造新的架构设计</a></li><li class="toc-minor"><a href="#section-8-4">5.4 Bottleneck：为什么先压缩，再加工，最后恢复？</a></li><li class="toc-minor"><a href="#section-8-5">5.5 Depthwise Separable Convolution：把空间计算和通道计算拆开</a></li><li class="toc-major"><a href="#section-9">第六章：让远距离信息直接交流——从 RNN、CNN 到 Transformer 和 Mamba</a></li><li class="toc-minor"><a href="#section-9-1">6.1 RNN 的麻烦：消息必须一个接一个地传</a></li><li class="toc-minor"><a href="#section-9-2">6.2 CNN 也有问题：扩大感受野需要增加网络层数</a></li><li class="toc-minor"><a href="#section-9-3">6.3 Transformer：让不同位置直接交换信息</a></li><li class="toc-minor"><a href="#section-9-4">6.4 但是 Transformer 又引入了新的问题</a></li><li class="toc-minor"><a href="#section-9-5">6.5 ViT：去掉卷积先验，看看 Transformer 能不能处理图像</a></li><li class="toc-minor"><a href="#section-9-6">6.6 FlashAttention：有时候，真正拖慢计算的不是计算本身</a></li><li class="toc-minor"><a href="#section-9-7">6.7 Mamba：换一种信息处理方式</a></li><li class="toc-major"><a href="#section-10">第七章：为什么小模型的经验，放大以后可能失效？——从 EfficientNet 到 μP</a></li><li class="toc-minor"><a href="#section-10-1">7.1 网络变大，究竟应该加深、加宽还是提高分辨率？</a></li><li class="toc-minor"><a href="#section-10-2">7.2 Scaling Laws：模型规模与数据规模之间存在可测量关系</a></li><li class="toc-minor"><a href="#section-10-3">7.3 μP：小模型调好的参数，能不能直接迁移到大模型？</a></li><li class="toc-minor"><a href="#section-10-4">7.4 2026 年的新进展：宽度与深度需要联合考虑</a></li><li class="toc-minor"><a href="#section-10-5">7.5 这一阶段真正解决的是什么？</a></li><li class="toc-major"><a href="#section-11">第八章：模型参数越多，是否意味着每次计算都要付出同样的代价？——MoE 与条件计算</a></li><li class="toc-minor"><a href="#section-11-1">8.1 一个非常昂贵的问题</a></li><li class="toc-minor"><a href="#section-11-2">8.2 MoE：让不同输入使用不同专家</a></li><li class="toc-minor"><a href="#section-11-3">8.3 MoE 并没有让计算成本凭空消失</a></li><li class="toc-minor"><a href="#section-11-4">8.4 训练最优不等于整个生命周期最优</a></li><li class="toc-major"><a href="#section-12">第九章：架构设计不应该只寻找一个最优模型——从 NAS 到 RegNet 和 NSC</a></li><li class="toc-minor"><a href="#section-12-1">9.1 神经网络的设计空间有多大？</a></li><li class="toc-minor"><a href="#section-12-2">9.2 RegNet：与其寻找一个好模型，不如寻找一套好模型的生成规则</a></li><li class="toc-minor"><a href="#section-12-3">9.3 2026 年的新探索：NSC 能否从架构本身估计容量？</a></li><li class="toc-minor"><a href="#section-12-4">9.4 设计空间方法的真正价值</a></li><li class="toc-major"><a href="#section-13">第二部分：六十多年的技术创新背后，究竟有哪些共同规律？</a></li><li class="toc-major"><a href="#section-14">原则一：保持有效的信息通路——不要让网络把自己堵死</a></li><li class="toc-major"><a href="#section-15">原则二：保持信号与更新的尺度稳定——不要让网络越训练越失控</a></li><li class="toc-minor"><a href="#section-15-1">1. 激活尺度</a></li><li class="toc-minor"><a href="#section-15-2">2. 梯度尺度</a></li><li class="toc-minor"><a href="#section-15-3">3. 参数更新尺度</a></li><li class="toc-major"><a href="#section-16">原则三：利用结构先验，避免无意义的自由度</a></li><li class="toc-major"><a href="#section-17">原则四：打破不合理的资源绑定——让容量、计算和存储各司其职</a></li><li class="toc-major"><a href="#section-18">原则五：从寻找最优配置，转向寻找能够复用的设计规律</a></li><li class="toc-major"><a href="#section-19">第三部分：把历史经验变成设计方法——一个统一的架构设计框架</a></li><li class="toc-major"><a href="#section-20">第十章：重新认识神经网络的设计对象——不是一张结构图，而是一组相互作用的变量</a></li><li class="toc-minor"><a href="#section-20-1">10.1 G：信息流拓扑（Graph）</a></li><li class="toc-minor"><a href="#section-20-2">10.2 Π：参数化与尺度控制（Parameterization）</a></li><li class="toc-minor"><a href="#section-20-3">10.3 S：结构先验（Structural Prior）</a></li><li class="toc-minor"><a href="#section-20-4">10.4 Λ：规模扩展路径（Scaling Path）</a></li><li class="toc-minor"><a href="#section-20-5">10.5 B：资源预算（Budget）</a></li><li class="toc-minor"><a href="#section-20-6">10.6 适用域与目标函数：五元组之外还有什么？</a></li><li class="toc-major"><a href="#section-21">第十一章：架构设计的七步闭环——先诊断，再动手</a></li><li class="toc-minor"><a href="#section-21-1">第一步：明确任务、应用环境和资源预算</a></li><li class="toc-minor"><a href="#section-21-2">第二步：诊断真正的瓶颈</a></li><li class="toc-minor"><a href="#section-21-3">第三步：根据瓶颈选择设计机制</a></li><li class="toc-minor"><a href="#section-21-4">第四步：遵守合理的设计顺序</a></li><li class="toc-minor"><a href="#section-21-5">第五步：设计规模扩展路径，而不是只优化一个点</a></li><li class="toc-minor"><a href="#section-21-6">第六步：用分布和多目标评价，而不是只看一个最优模型</a></li><li class="toc-minor"><a href="#section-21-7">第七步：预测下一个瓶颈，回到第二步</a></li><li class="toc-major"><a href="#section-22">第四部分：把设计框架用起来——一个面向未来的架构设计案例</a></li><li class="toc-major"><a href="#section-23">第十二章：假设我们要设计一套支持 128K 上下文的模型，同时兼顾 100B 级预训练和端侧部署</a></li><li class="toc-minor"><a href="#section-23-1">第一步：明确应用目标</a></li><li class="toc-minor"><a href="#section-23-2">第二步：识别主要瓶颈</a></li><li class="toc-minor"><a href="#section-23-3">第三步：选择候选架构机制</a></li><li class="toc-minor"><a href="#section-23-4">第四步：先保证架构具有稳定的训练动力学</a></li><li class="toc-minor"><a href="#section-23-5">第五步：制定不同尺度的扩展路线</a></li><li class="toc-minor"><a href="#section-23-6">第六步：分别建立数据中心与端侧的评价体系</a></li><li class="toc-minor"><a href="#section-23-7">第七步：预测下一代瓶颈</a></li><li class="toc-minor"><a href="#section-23-8">这个案例真正说明了什么？</a></li><li class="toc-major"><a href="#section-24">第五部分：统一框架的能力边界——我们究竟掌握了什么，还缺少什么？</a></li><li class="toc-major"><a href="#section-25">第十三章：五类设计原则并不能解释所有问题</a></li><li class="toc-minor"><a href="#section-25-1">13.1 如何判断一种结构先验是否真正符合数据规律？</a></li><li class="toc-minor"><a href="#section-25-2">13.2 如何判断网络中真正有效的计算容量？</a></li><li class="toc-minor"><a href="#section-25-3">13.3 如何建立跨深度、宽度、数据和硬件的统一扩展理论？</a></li><li class="toc-minor"><a href="#section-25-4">13.4 如何真正做到架构设计的自动化？</a></li><li class="toc-major"><a href="#section-26">第十四章：怎样判断一套架构设计理论是否真的有用？</a></li><li class="toc-minor"><a href="#section-26-1">14.1 是否提高了架构迭代效率？</a></li><li class="toc-minor"><a href="#section-26-2">14.2 是否提高了实验结果的可解释性？</a></li><li class="toc-minor"><a href="#section-26-3">14.3 是否提高了跨尺度迁移能力？</a></li><li class="toc-minor"><a href="#section-26-4">14.4 是否改善了多目标性能？</a></li><li class="toc-minor"><a href="#section-26-5">14.5 是否能够预判下一轮瓶颈？</a></li><li class="toc-major"><a href="#section-27">第六部分：未来的神经网络架构设计，可能走向哪里？</a></li><li class="toc-major"><a href="#section-28">第十五章：从架构创新到架构科学</a></li><li class="toc-minor"><a href="#section-28-1">15.1 从静态连接走向动态信息流</a></li><li class="toc-minor"><a href="#section-28-2">15.2 从单一模型走向异构模块协同</a></li><li class="toc-minor"><a href="#section-28-3">15.3 从固定精度和固定计算走向弹性资源分配</a></li><li class="toc-minor"><a href="#section-28-4">15.4 从训练一次模型走向整个生命周期优化</a></li><li class="toc-minor"><a href="#section-28-5">15.5 从人工经验设计走向 AI 自动设计 AI</a></li><li class="toc-major"><a href="#section-29">结语：真正重要的，不是记住多少架构，而是学会怎样设计架构</a></li><li class="toc-major"><a href="#section-30">附录一：深度神经网络架构发展的关键历史年表</a></li><li class="toc-major"><a href="#section-31">附录二：五类架构设计原则与代表技术对照表</a></li><li class="toc-major"><a href="#section-32">附录三：新架构设计的十二项检查清单</a></li><li class="toc-major"><a href="#section-33">附录四：关键参考文献</a></li><li class="toc-major"><a href="#section-34">一、表达能力与反向传播</a></li><li class="toc-major"><a href="#section-35">二、梯度传播与循环网络</a></li><li class="toc-major"><a href="#section-36">三、初始化、激活与归一化</a></li><li class="toc-major"><a href="#section-37">四、残差网络与深度优化</a></li><li class="toc-major"><a href="#section-38">五、网络效率与结构先验</a></li><li class="toc-major"><a href="#section-39">六、Transformer 与长序列计算</a></li><li class="toc-major"><a href="#section-40">七、规模扩展与设计空间</a></li></ul>
+  </details>
+  <main class="article">
+    <h1>深度神经网络的进化密码：从解决一个难题，到设计下一代架构</h1>
+<h2 id="section-1">——从感知机、ResNet、Transformer 到 MoE：六十多年架构创新背后的共同规律</h2>
+<hr/>
+<h2 id="section-2">引言：为什么神经网络不能简单地「堆得更大」？</h2>
+<p>假设你准备建造一座工厂。</p>
+<p>你希望工厂拥有更多生产线、更大的厂房、更多工人，最好还能生产更多种类的产品。于是，你不断增加生产线、扩大厂房、招聘工人。</p>
+<p>听起来很合理。</p>
+<p>但很快，你会发现一个问题：工厂变大了，产量却不一定增加。</p>
+<p>有的生产线之间无法顺畅衔接，有的工序需要等待前面的工人完成，有的信息传到最后已经失真，有的设备虽然功能强大，却耗电惊人，还有一些昂贵的机器一天到晚闲着，根本没有参与生产。</p>
+<p>这时候，你会怎么做？</p>
+<p>继续扩大厂房？</p>
+<p>显然不一定。</p>
+<p>你可能需要重新设计生产流程、调整工序关系、增加信息通道、改变设备的工作方式，甚至重新安排整个工厂的组织结构。</p>
+<p><strong>深度神经网络的发展，实际上也经历了类似的过程。</strong></p>
+<p>过去六十多年，研究者不断增加神经网络的深度、宽度和参数量，但很快发现，神经网络并不是一台可以无限堆叠零件的机器。</p>
+<p>网络变深，可能出现梯度消失；网络变宽，可能增加大量计算成本；网络变大，训练可能不稳定；网络拥有更多参数，却不一定能够更有效地利用这些参数。</p>
+<p>于是，研究者不得不不断改变网络的结构、信息传播方式、参数化方案和计算机制。</p>
+<p>从感知机到多层神经网络，从 LSTM 到 ResNet，从 CNN 到 Transformer，再到 MoE，这些看似五花八门的架构创新，其实一直在回答一组相互关联的问题：</p>
+<ol>
+<li>怎样让神经网络具备足够强的表达能力？</li>
+<li>怎样让信息和学习信号在深层网络中顺畅传播？</li>
+<li>怎样让越来越复杂的网络保持稳定、容易训练？</li>
+<li>怎样在有限的计算资源下获得更强的模型能力？</li>
+<li>怎样让网络中的不同部分有效交互，又不造成计算灾难？</li>
+<li>怎样让小规模模型的经验能够迁移到大规模模型？</li>
+<li>怎样从庞大的设计空间中找到真正有效、可以复用的架构规律？</li>
+</ol>
+<p>这些问题并不是在某个时刻突然出现、解决之后就永远消失了。它们一直存在，只是在不同发展阶段，某些问题逐渐成为制约神经网络进一步发展的主要瓶颈。</p>
+<p>本文想讲述的，就是这段历史背后的共同逻辑：</p>
+<p><strong>深度神经网络架构的发展，不只是模型规模不断增长的历史，更是一部不断发现、识别和解除系统性约束的历史。</strong></p>
+<p>更重要的是，我们能不能从这段历史中提炼出一套设计原则，让未来的研究者不必每次都从零开始，在无数种网络结构和超参数中盲目试错？</p>
+<p>答案是：可以尝试，而且已经出现了不少值得借鉴的理论与工程方法。</p>
+<p>但要先理解，过去究竟发生了什么。</p>
+<hr/>
+<h2 id="section-3">第一部分：六十多年架构进化史——研究者究竟在解决什么问题？</h2>
+<h2 id="section-4">第一章：让机器学会表达复杂关系——从感知机到多层神经网络</h2>
+<h3 id="section-4-1">1.1 最早的神经网络，为什么连简单问题都解决不了？</h3>
+<p>1958 年，Frank Rosenblatt 提出了感知机（Perceptron）。</p>
+<p>它是早期人工神经网络的重要代表。</p>
+<p>感知机的工作原理并不复杂：</p>
+<p>接收输入信号，为不同输入分配权重，计算加权和，再通过激活函数产生输出。</p>
+<p>可以简单表示为：</p>
+<div class="math math-block">$$
+y=f\left(\sum_{i=1}^{n}w_ix_i+b\right)
+$$</div>
+<p>其中：</p>
+<ul>
+<li><span class="math">\(x_i\)</span>：输入信号；</li>
+<li><span class="math">\(w_i\)</span>：对应的权重；</li>
+<li><span class="math">\(b\)</span>：偏置；</li>
+<li><span class="math">\(f\)</span>：激活函数；</li>
+<li><span class="math">\(y\)</span>：输出。</li>
+</ul>
+<p>你可以把它理解为一个简单的判断器。</p>
+<p>例如，判断一封邮件是不是垃圾邮件：</p>
+<p>邮件中出现「中奖」「免费」「转账」等关键词，就给它们分配不同权重，最后根据综合得分判断。</p>
+<p>问题来了。</p>
+<p>假设我们只想让机器判断一个非常简单的逻辑关系：XOR（异或）。</p>
+<table>
+<thead>
+<tr>
+<th>输入 A</th>
+<th>输入 B</th>
+<th>XOR 输出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>这个问题看起来简单得不能再简单。</p>
+<p>但单层感知机无法正确表示 XOR。</p>
+<p>为什么？</p>
+<p>因为单层感知机本质上是在输入空间中划出一条直线（多维情况下是一个超平面），把不同类别分开。</p>
+<p>而 XOR 的四个点无法通过一条直线实现正确分类。</p>
+<p>这就是所谓的<strong>线性不可分问题</strong>。</p>
+<p>1969 年，Marvin Minsky 和 Seymour Papert 在《Perceptrons》中系统分析了当时感知机模型的局限，引发了关于早期神经网络能力边界的重要讨论。</p>
+<p>问题的根源并不在于机器不够努力，而是它的结构太简单了。</p>
+<p>就像让一个只有直尺的测量员去完成曲线拟合任务，无论他多么勤奋，都无法突破工具本身的表达能力限制。</p>
+<h3 id="section-4-2">1.2 多层网络：给神经网络增加「中间思考过程」</h3>
+<p>解决思路其实很自然：</p>
+<p>既然一条直线不够，那就用多条直线；既然一个判断器不够，那就组合多个判断器。</p>
+<p>于是，多层神经网络成为重要发展方向。</p>
+<p>最基本的多层结构包括：</p>
+<ul>
+<li>输入层：接收原始数据；</li>
+<li>隐藏层：对输入进行逐层变换；</li>
+<li>输出层：生成最终结果。</li>
+</ul>
+<figure class="concept-figure">
+<div class="flowline"><span>输入层</span><b>→</b><span>隐藏层 1</span><b>→</b><span>隐藏层 2</span><b>→</b><span>输出层</span></div>
+<figcaption>多层感知机的概念结构：每一层都对上一层的表示进行加工，逐渐形成更复杂的特征。</figcaption>
+</figure>
+<p>假设第一层先识别两个输入是否不同，第二层再将结果组合起来，就可以实现 XOR。</p>
+<p>更一般地，神经网络可以表示为：</p>
+<div class="math math-block">$$
+h_1=f_1(W_1x+b_1)
+$$</div>
+<div class="math math-block">$$
+h_2=f_2(W_2h_1+b_2)
+$$</div>
+<div class="math math-block">$$
+y=f_3(W_3h_2+b_3)
+$$</div>
+<p>这就是一种函数复合：</p>
+<div class="math math-block">$$
+y=F_3(F_2(F_1(x)))
+$$</div>
+<p>每一层都对上一层的表示进行加工，逐渐形成更复杂的特征。</p>
+<p>但这里有一个关键条件：</p>
+<p><strong>层与层之间必须具有非线性变换能力。</strong></p>
+<p>如果每一层都只是线性变换，那么无论堆多少层，最终仍然可以合并成一个线性变换。</p>
+<p>例如：</p>
+<div class="math math-block">$$
+W_3(W_2(W_1x))=(W_3W_2W_1)x
+$$</div>
+<p>三层线性网络，本质上仍然只是一层线性网络。</p>
+<p>增加层数并没有真正增加表达能力。</p>
+<p>非线性激活函数的作用，就是打破这种线性组合的限制，让网络能够表示更加复杂的函数关系。</p>
+<h3 id="section-4-3">1.3 反向传播：机器终于知道应该怎样修改自己</h3>
+<p>多层网络解决了表达能力问题，但很快又出现一个新问题：</p>
+<p>如果网络有几十层，每一层都有大量权重，那么应该如何调整这些权重，才能让最终输出更加接近正确答案？</p>
+<p>1986 年，Rumelhart、Hinton 和 Williams 发表了著名论文《Learning Representations by Back-Propagating Errors》，系统推动了反向传播算法在多层神经网络训练中的应用。反向传播思想本身并非始于 1986 年，但这项工作对其普及具有重要影响。</p>
+<p>反向传播的核心思想很简单：</p>
+<p><strong>先计算结果错了多少，再把错误对各层参数的影响逐层向后传递，告诉每个参数应该怎样调整。</strong></p>
+<p>例如，一个网络识别图片中的猫，结果却判断成了狗。</p>
+<p>反向传播会计算损失函数：</p>
+<div class="math math-block">$$
+L(\theta)
+$$</div>
+<p>然后利用链式法则求出不同参数对损失的影响：</p>
+<div class="math math-block">$$
+\frac{\partial L}{\partial W_l}
+$$</div>
+<p>最后根据梯度更新权重：</p>
+<div class="math math-block">$$
+W_l\leftarrow W_l-\eta\frac{\partial L}{\partial W_l}
+$$</div>
+<p>其中，<span class="math">\(\eta\)</span> 是学习率。</p>
+<p>这样，神经网络就能够通过不断调整参数，逐渐降低预测误差。</p>
+<p>与此同时，1989 年前后，Cybenko、Hornik 等人的通用逼近定理研究进一步表明，在适当条件下，具有足够隐藏单元的前馈网络能够逼近很广泛的一类连续函数。</p>
+<p>这意味着神经网络在数学上具有非常强的表达能力。</p>
+<p>但是，请注意：</p>
+<p><strong>能够表达，不等于能够学会。</strong></p>
+<p>通用逼近定理告诉我们，某个参数解可能存在，却没有保证梯度下降一定能在有限时间内找到它。</p>
+<p>就像你知道一座城市里有一家非常好的餐厅，并不意味着你已经知道怎么找到它。</p>
+<p>表达能力问题解决之后，真正困难的问题才开始出现。</p>
+<hr/>
+<h2 id="section-5">第二章：让学习信号穿越漫长的网络——从梯度消失到 LSTM</h2>
+<h3 id="section-5-1">2.1 网络越深，为什么越学不到前面的内容？</h3>
+<p>反向传播需要把误差信号从网络末端逐层传回前面。</p>
+<p>假设网络有 100 层。</p>
+<p>最后一层发现结果错了，需要告诉第 99 层应该如何调整，第 99 层再告诉第 98 层，依此类推。</p>
+<p>问题在于，每传递一层，都可能发生一次数值变换。</p>
+<p>根据链式法则：</p>
+<div class="math math-block">$$
+\frac{\partial L}{\partial h_l}=\frac{\partial L}{\partial h_L}\prod_{k=l+1}^{L}J_k
+$$</div>
+<p>其中，<span class="math">\(J_k\)</span> 是第 <span class="math">\(k\)</span> 层的局部雅可比矩阵。</p>
+<p>看起来只是一个普通的矩阵乘法。</p>
+<p>但麻烦来了：</p>
+<p>如果这些矩阵的有效尺度长期小于 1，连续相乘就可能让结果迅速趋近于零。</p>
+<p>例如：</p>
+<div class="math math-block">$$
+0.8^{10}\approx0.107
+$$</div>
+<div class="math math-block">$$
+0.8^{50}\approx0.000014
+$$</div>
+<div class="math math-block">$$
+0.8^{100}\approx0.00000002
+$$</div>
+<p>100 次传播之后，原本有价值的信号已经微弱得几乎无法发挥作用。</p>
+<p>这就是<strong>梯度消失（Vanishing Gradient）</strong>。</p>
+<p>反过来，如果相关方向上的放大效应持续大于 1，梯度也可能快速爆炸。</p>
+<p>这就是梯度爆炸（Exploding Gradient）。</p>
+<p>可以想象一下：</p>
+<p>老师让第一排学生把一条重要信息传到最后一排。</p>
+<p>如果每个人传递时都把声音降低一点，传到最后可能什么也听不见。</p>
+<p>如果每个人都把声音放大两倍，传到最后可能变成全班都无法忍受的噪声。</p>
+<p>梯度传播面对的就是类似的问题。</p>
+<p>1991 年，Sepp Hochreiter 对这一问题进行了系统分析。1994 年，Bengio、Simard 和 Frasconi 的论文进一步论证了使用梯度下降学习长时间依赖关系的困难。</p>
+<h3 id="section-5-2">2.2 LSTM：给学习信号修一条特殊通道</h3>
+<p>1997 年，Hochreiter 和 Schmidhuber 提出了长短期记忆网络（Long Short-Term Memory，LSTM）。</p>
+<p>LSTM 的关键创新之一，是设计了一条称为恒定误差轮盘（Constant Error Carousel，CEC）的记忆通路。</p>
+<figure class="concept-figure">
+<div class="flowline"><span>旧细胞状态</span><b>→</b><span>遗忘门控制</span><b>→</b><span>加法更新</span><b>→</b><span>新细胞状态</span></div>
+<figcaption>LSTM 通过门控和细胞状态通路控制信息保留与更新。图示为概念流程，并非完整门控计算图。</figcaption>
+</figure>
+<p>普通循环网络的隐藏状态需要经过连续的非线性变换：</p>
+<div class="math math-block">$$
+h_t=f(W_hh_{t-1}+W_xx_t)
+$$</div>
+<p>而 LSTM 引入了专门的细胞状态 <span class="math">\(c_t\)</span>，使信息能够沿着相对直接的加法通道传递。</p>
+<p>简化地表示：</p>
+<div class="math math-block">$$
+c_t=f_t\odot c_{t-1}+i_t\odot\widetilde c_t
+$$</div>
+<p>其中：</p>
+<ul>
+<li><span class="math">\(f_t\)</span>：遗忘门，控制保留多少旧信息；</li>
+<li><span class="math">\(i_t\)</span>：输入门，控制写入多少新信息；</li>
+<li><span class="math">\(\widetilde c_t\)</span>：候选记忆；</li>
+<li><span class="math">\(\odot\)</span>：逐元素乘法。</li>
+</ul>
+<p>关键就在第一项：</p>
+<div class="math math-block">$$
+f_t\odot c_{t-1}
+$$</div>
+<p>当遗忘门保持接近 1 时，细胞状态可以沿着这条路径较为直接地保留。</p>
+<p>相比让信息不断通过复杂变换，这种机制为长期信息传播提供了一条更容易维持的通道。</p>
+<p>原始 LSTM 论文提出了恒定误差通路；后来，Gers 等人进一步引入遗忘门，使网络能够主动决定何时清除旧记忆。</p>
+<p>这是一项非常重要的设计思想：</p>
+<p><strong>不要让所有信息都必须经过复杂的加工过程。应该允许重要信息沿着更直接的路径传播。</strong></p>
+<p>这个思想后来在许多架构中以不同形式重新出现。</p>
+<p>例如：</p>
+<ul>
+<li>Highway Network：使用门控控制信息通过哪些路径；</li>
+<li>ResNet：引入直接的恒等映射与加法通路；</li>
+<li>Pre-LN Transformer：在残差块内部安排归一化；</li>
+<li>ReZero：通过可学习的残差系数控制分支贡献；</li>
+<li>Fixup：通过初始化控制残差分支的尺度。</li>
+</ul>
+<p>它们并不具有相同的数学形式，也不解决完全相同的问题，但都体现了一种相似的设计方向：<strong>让复杂计算拥有可靠的信息传输通道。</strong></p>
+<h3 id="section-5-3">2.3 这次突破还留下了什么问题？</h3>
+<p>LSTM 缓解了循环网络的长期依赖学习困难，但它并没有解决所有深度学习问题。</p>
+<p>尤其是：</p>
+<p>循环网络通常需要按照时间顺序处理序列。</p>
+<p>如果一段文字有 10,000 个 token，网络通常需要按照时间步逐步更新状态。</p>
+<p>这对 GPU 等并行计算设备并不友好。</p>
+<p>此外，前馈深层网络也仍然需要解决自己的梯度传播和优化问题。</p>
+<p>一个问题得到缓解，新的问题又变得突出。</p>
+<p>这正是后续架构创新不断发生的重要原因。</p>
+<hr/>
+<h2 id="section-6">第三章：让网络保持稳定——从 Xavier、He 到归一化</h2>
+<h3 id="section-6-1">3.1 梯度能够传播，不代表网络就能稳定工作</h3>
+<p>假设一个神经网络有 100 层。</p>
+<p>即使梯度没有明显消失，也不意味着训练过程一定稳定。</p>
+<p>因为网络不仅需要反向传播梯度，还必须在前向计算时保持合理的信号尺度。</p>
+<p>例如：</p>
+<p>输入某一层的数值大约在 1 左右，经过下一层之后变成 10，再经过几层变成 1000。</p>
+<p>反过来，也可能变得越来越小。</p>
+<p>这样，网络不同层的输入和输出就会出现严重的尺度失衡。</p>
+<p>你可以想象一条流水线。</p>
+<p>第一道工序输入 10 个零件，第二道工序突然变成 1000 个，第三道工序又只剩下 0.01 个。</p>
+<p>不管工人多么努力，这条生产线都难以正常运行。</p>
+<p>在神经网络中，这种问题与权重初始化、激活函数以及各层的信号传播方式密切相关。</p>
+<h3 id="section-6-2">3.2 Xavier 初始化：让信号不要越传越偏</h3>
+<p>2010 年，Glorot 和 Bengio 研究了深层前馈网络的训练困难，并提出了后来被称为 Xavier 初始化的一类方法。</p>
+<p>其核心思想是：</p>
+<p>初始化时，应尽量使网络各层的激活和梯度方差保持在合理范围内。</p>
+<p>对于一个输入维度为 <span class="math">\(n_{\text{in}}\)</span>、输出维度为 <span class="math">\(n_{\text{out}}\)</span> 的线性层，常见的 Xavier 初始化可以写为：</p>
+<div class="math math-block">$$
+W_{ij}\sim\mathcal U\left(-\sqrt{\frac{6}{n_{\text{in}}+n_{\text{out}}}},\sqrt{\frac{6}{n_{\text{in}}+n_{\text{out}}}}\right)
+$$</div>
+<p>这里的目的不是让所有权重都相等，而是让随机初始化具有合适的统计尺度。</p>
+<h3 id="section-6-3">3.3 ReLU 与 He 初始化：让深层网络更容易训练</h3>
+<p>传统 Sigmoid 激活函数存在一个问题：</p>
+<p>当输入非常大或者非常小时，输出会进入饱和区，导数接近零。</p>
+<div class="math math-block">$$
+\sigma'(x)=\sigma(x)(1-\sigma(x))
+$$</div>
+<p>当网络层数增加，多个小于 1 的导数相乘，就容易产生梯度消失。</p>
+<p>后来，ReLU（Rectified Linear Unit）成为重要的选择：</p>
+<div class="math math-block">$$
+ReLU(x)=\max(0,x)
+$$</div>
+<p>它的正半轴导数为 1，不会像 Sigmoid 一样在正半轴进入饱和状态。</p>
+<p>2012 年，AlexNet 的成功进一步推动了 ReLU 在深度学习中的广泛应用。</p>
+<p>但 ReLU 也存在自己的问题，例如负半轴输出为零、可能出现神经元长期不激活等。</p>
+<p>为了适应 ReLU 一类激活函数，He 等人在 2015 年提出了相应的初始化方法。</p>
+<p>常见的 He 初始化满足：</p>
+<div class="math math-block">$$
+W_{ij}\sim\mathcal N\left(0,\frac{2}{n_{\text{in}}}\right)
+$$</div>
+<p>它通过考虑 ReLU 的非线性特点，控制信号传播的方差。</p>
+<h3 id="section-6-4">3.4 BatchNorm 和 LayerNorm：给不同层的信号重新校准</h3>
+<p>2015 年，Ioffe 和 Szegedy 提出了 Batch Normalization（BatchNorm）。</p>
+<p>它通过对一个 mini-batch 中的数据进行统计归一化，让网络层的输入具有更可控的分布，并通过可学习的缩放和偏置参数恢复表达灵活性。</p>
+<p>2016 年，Ba、Kiros 和 Hinton 提出了 Layer Normalization（LayerNorm）。</p>
+<p>与 BatchNorm 依赖批次统计不同，LayerNorm 在单个样本的特征维度上计算归一化统计量，因此非常适合循环网络和 Transformer 等结构。</p>
+<figure class="concept-figure">
+<div class="flowline"><span>BatchNorm</span><b>：按批次统计维度归一化</b></div>
+<div class="flowline"><span>LayerNorm</span><b>：按单个样本的特征维度归一化</b></div>
+<figcaption>两种归一化的统计维度不同。实际实现还需结合张量布局、训练/推理模式与具体归一化轴理解。</figcaption>
+</figure>
+<p>归一化技术的重要价值在于：</p>
+<ul>
+<li>改善网络内部数值尺度；</li>
+<li>缓解训练过程中的不稳定；</li>
+<li>降低对初始化的敏感程度；</li>
+<li>在许多场景下允许使用更大的学习率。</li>
+</ul>
+<p>不过，不能把 BatchNorm 的所有效果简单地归结为消除了所谓的内部协变量偏移。其稳定训练的机制比原始论文提出的解释更加复杂。</p>
+<h3 id="section-6-5">3.5 深层网络的训练开始从经验走向理论</h3>
+<p>2016—2017 年前后，Poole、Schoenholz 等研究者利用平均场理论研究深层网络中的信息传播。</p>
+<p>他们关注的问题是：</p>
+<p>如果网络不断增加层数，激活和梯度会如何变化？</p>
+<p>在什么条件下，信号能够保持稳定？</p>
+<p>在什么条件下，网络会丢失输入信息或者对微小扰动变得过于敏感？</p>
+<p>由此形成了与有序相、混沌相和临界传播有关的理论分析。</p>
+<p>其中，Edge of Chaos（混沌边缘）成为研究深层信号传播的重要概念。</p>
+<p>它试图说明：网络初始化不能只看单层参数，而应该考虑整个网络不断复合之后的动力学行为。</p>
+<p>这标志着一个重要变化：</p>
+<p><strong>深度网络能否训练，开始从经验性的参数调整问题，逐渐变成可以使用数学工具分析的信号传播问题。</strong></p>
+<p>但信号稳定了，网络仍然可能无法很好地训练。</p>
+<p>接下来出现的退化问题，就是最典型的例子。</p>
+<hr/>
+<h2 id="section-7">第四章：为什么网络越深，反而可能越难训练？——ResNet 的革命</h2>
+<h3 id="section-7-1">4.1 一个违反直觉的实验结果</h3>
+<p>2015 年，微软研究团队提出了一个令人意外的问题：</p>
+<p>既然更深的网络能够表达更复杂的函数，那么把一个已经能够正常训练的网络继续加深，性能应该更好才对。</p>
+<p>但实际实验却出现了反常现象。</p>
+<p>在一些设置下，56 层的普通网络，训练误差竟然高于 20 层网络。</p>
+<p>请注意，这里说的是训练误差，而不是测试误差。</p>
+<p>这意味着问题不是单纯的过拟合，而是：</p>
+<p><strong>更深的网络甚至无法把自己的训练数据学得更好。</strong></p>
+<p>这被称为网络退化问题（Degradation Problem）。</p>
+<p>按照直觉，更深的网络应该至少能够实现较浅网络的功能。</p>
+<p>例如，在原来的 20 层网络后面增加 36 层，如果新增的层全部实现恒等映射，那么整体功能就应该保持不变。</p>
+<p>数学上：</p>
+<div class="math math-block">$$
+F_{20+36}(x)=F_{20}(x)
+$$</div>
+<p>理论上没有任何障碍。</p>
+<p>但实际训练却很难自动找到这样的参数组合。</p>
+<p>这揭示了一个重要区别：</p>
+<p><strong>一个函数在模型的表达空间中存在，并不代表优化算法能够容易地找到它。</strong></p>
+<p>ResNet 的论文明确展示了普通深层网络的训练误差退化，并提出残差学习框架改善深层网络的优化。</p>
+<h3 id="section-7-2">4.2 Highway Network：先给信息传播开辟高速公路</h3>
+<p>2015 年，Srivastava、Greff 和 Schmidhuber 提出了 Highway Networks。</p>
+<p>它借鉴了 LSTM 的门控思想，让信息能够选择通过变换路径或者直接通路。</p>
+<p>简化表示为：</p>
+<div class="math math-block">$$
+y=T(x)\odot H(x)+C(x)\odot x
+$$</div>
+<p>其中：</p>
+<ul>
+<li><span class="math">\(H(x)\)</span>：变换分支；</li>
+<li><span class="math">\(T(x)\)</span>：变换门；</li>
+<li><span class="math">\(C(x)\)</span>：直通门。</li>
+</ul>
+<p>这意味着网络不必强迫每一层都对输入进行复杂变换。</p>
+<p>如果当前层没有必要修改信息，就可以保留更多原始输入。</p>
+<h3 id="section-7-3">4.3 ResNet：与其学习完整结果，不如学习需要改变的部分</h3>
+<p>同年，He 等人提出了 ResNet（Residual Network，残差网络）。</p>
+<p>它把 Highway Network 的部分思想进一步简化。</p>
+<p>普通网络希望学习：</p>
+<div class="math math-block">$$
+H(x)
+$$</div>
+<p>而残差网络改为学习：</p>
+<div class="math math-block">$$
+F(x)=H(x)-x
+$$</div>
+<p>于是：</p>
+<div class="math math-block">$$
+\boxed{y=x+F(x)}
+$$</div>
+<figure class="concept-figure">
+<div class="flowline"><span>输入 x</span><b>→</b><span>残差分支 F(x)</span><b>→</b><span>与 x 相加</span><b>→</b><span>输出 y</span></div>
+<figcaption>ResNet 的基本残差块：输入沿主干直接传递，同时经过残差分支变换，最后相加。</figcaption>
+</figure>
+<p>这就是残差连接。</p>
+<p>它的含义很有趣：</p>
+<p>如果原始输入已经足够好，网络就不必重新学习整个映射。</p>
+<p>它只需要学习「在原有基础上还应该改变多少」。</p>
+<p>如果残差分支输出为零：</p>
+<div class="math math-block">$$
+F(x)=0
+$$</div>
+<p>那么：</p>
+<div class="math math-block">$$
+y=x
+$$</div>
+<p>网络就可以直接实现恒等映射。</p>
+<p>这大大降低了加深网络时保持原有功能的难度。</p>
+<p>从优化角度看，残差结构提供了一条不必经过残差变换的直接信息通路。</p>
+<p>因此，网络即使增加了更多层，也能够更容易地保留原有信息。</p>
+<p>ResNet 论文展示了这一设计在极深网络训练中的效果，后来成为现代深度学习架构的重要基础。</p>
+<h3 id="section-7-4">4.4 Pre-LN：把归一化放在哪里，也是一门学问</h3>
+<p>Transformer 中还有一个容易被忽略的设计问题：</p>
+<p>LayerNorm 究竟应该放在残差分支的外面，还是里面？</p>
+<p>这就产生了两种典型结构：</p>
+<p><strong>Post-LN：</strong></p>
+<div class="math math-block">$$
+y=LN(x+F(x))
+$$</div>
+<p><strong>Pre-LN：</strong></p>
+<div class="math math-block">$$
+y=x+F(LN(x))
+$$</div>
+<figure class="concept-figure">
+<div class="flowline"><span>Post-LN</span><b>：残差相加 → LayerNorm</b></div>
+<div class="flowline"><span>Pre-LN</span><b>：LayerNorm → 子层计算 → 残差相加</b></div>
+<figcaption>归一化位置会改变残差路径和子层的数值传播方式。图示为结构顺序的简化表达。</figcaption>
+</figure>
+<p>两种结构看起来只是把 LayerNorm 移动了一个位置。</p>
+<p>但这种位置变化会影响初始化时的梯度传播行为。</p>
+<p>Xiong 等人 2020 年的研究通过平均场理论分析了 Post-LN 与 Pre-LN 的差异，指出 Post-LN 在初始化时更容易出现靠近输出层的梯度偏大问题，而 Pre-LN 在相关设置下具有更平稳的初始化梯度，因此可以在实验中使用不带 Warmup 的训练方案。</p>
+<p>这并不意味着 Pre-LN 在所有模型和训练配置下都不需要 Warmup。</p>
+<p>它说明的是：<strong>归一化的位置本身就是影响网络动力学的重要架构设计变量。</strong></p>
+<h3 id="section-7-5">4.5 更进一步：不使用归一化，也可能训练极深网络</h3>
+<p>2019 年，Zhang 等人提出 Fixup Initialization。</p>
+<p>他们发现，通过合理设计残差分支的初始化和尺度，不使用归一化层，也可以稳定训练非常深的残差网络。</p>
+<p>论文展示了在特定设置下训练 10,000 层网络的结果。</p>
+<p>这件事揭示了一个重要认识：</p>
+<p>网络训练的稳定性，并不一定只能依赖某一种具体的归一化操作。</p>
+<p>初始化方式、残差分支的尺度、网络拓扑和优化过程可以协同发挥作用。</p>
+<p>BatchNorm、Pre-LN、Fixup、ReZero 和其他残差缩放方案，并不是完全相同的技术，但它们共同说明：</p>
+<p><strong>网络设计不能只考虑层与层之间连接了什么，还必须考虑每条信息路径的数值尺度。</strong></p>
+<h3 id="section-7-6">4.6 一个更加深刻的认识：网络深度与数值积分</h3>
+<p>还有一个很有意思的理论联系。</p>
+<p>考虑残差网络：</p>
+<div class="math math-block">$$
+x_{l+1}=x_l+\frac{1}{L}f(x_l)
+$$</div>
+<p>这与常微分方程的前向欧拉离散形式非常相似：</p>
+<div class="math math-block">$$
+\frac{dx}{dt}=f(x)
+$$</div>
+<p>其中：</p>
+<div class="math math-block">$$
+\Delta t=\frac{1}{L}
+$$</div>
+<p>每增加一层，相当于在连续演化过程中增加一个时间步。</p>
+<p>这使研究者能够从数值分析的角度研究深度网络：</p>
+<ul>
+<li>步长太大，可能导致数值不稳定；</li>
+<li>步长太小，可能增加计算成本；</li>
+<li>不同的离散方法，具有不同的稳定性和精度特征。</li>
+</ul>
+<p>因此，ResNet 不仅是一种连接方式，也为研究深度网络与连续动力系统之间的联系打开了大门。</p>
+<p>但这里必须注意：</p>
+<p>标准 ResNet 通常写作：</p>
+<div class="math math-block">$$
+x_{l+1}=x_l+F(x_l)
+$$</div>
+<p>并不天然等同于步长为 <span class="math">\(1/L\)</span> 的欧拉离散。</p>
+<p>只有在适当的残差尺度设置下，才能建立相应的连续极限联系。</p>
+<p>这个类比提供了分析工具，而不是证明所有残差网络都必须采用同一个缩放系数。</p>
+<hr/>
+<h2 id="section-8">第五章：如何用更少的资源做更多计算？——从 CNN 到高效网络</h2>
+<h3 id="section-8-1">5.1 为什么神经网络不能让每个神经元都和所有其他神经元连接？</h3>
+<p>假设有一个拥有 10,000 个输入特征的网络。</p>
+<p>如果每个输入都与每个输出建立独立连接，那么参数数量会非常庞大。</p>
+<p>对于一般的全连接层：</p>
+<div class="math math-block">$$
+N_{\text{params}}=n_{\text{in}}\times n_{\text{out}}
+$$</div>
+<p>如果输入和输出各有 10,000 个神经元：</p>
+<div class="math math-block">$$
+N_{\text{params}}=10^8
+$$</div>
+<p>仅仅一层就需要一亿个权重。</p>
+<p>问题是：</p>
+<p><strong>这些连接真的都需要吗？</strong></p>
+<p>如果处理的是图像，相邻像素之间通常存在更强的空间关联。</p>
+<p>一个像素周围的边缘、纹理和局部形状，往往比距离很远的像素具有更直接的关系。</p>
+<p>于是，卷积神经网络（CNN）引入了非常重要的结构先验。</p>
+<h3 id="section-8-2">5.2 CNN：利用局部连接和权重共享</h3>
+<p>CNN 主要依赖三个设计思想：</p>
+<ol>
+<li>局部感受野；</li>
+<li>权重共享；</li>
+<li>空间下采样。</li>
+</ol>
+<figure class="concept-figure">
+<div class="flowline"><span>输入图像</span><b>→</b><span>局部卷积核滑动</span><b>→</b><span>特征图</span><b>→</b><span>后续特征提取</span></div>
+<figcaption>CNN 在不同空间位置重复使用同一组卷积核参数，以较少参数提取局部模式。</figcaption>
+</figure>
+<p>假设一个卷积核只有 <span class="math">\(3\times3\)</span> 个参数。</p>
+<p>它可以在整张图片上滑动，识别不同位置是否存在相同类型的局部特征。</p>
+<p>例如：</p>
+<ul>
+<li>边缘；</li>
+<li>角点；</li>
+<li>纹理；</li>
+<li>简单形状。</li>
+</ul>
+<p>同一个卷积核，不需要为图片中的每个位置重新学习一套参数。</p>
+<p>这样，CNN 就能够用较少的参数实现对图像局部结构的有效处理。</p>
+<p>卷积具有平移等变性：输入图像发生平移时，对应的特征响应也会发生相应平移。池化等操作则可以进一步帮助网络获得一定程度的局部平移不变性。</p>
+<p>LeNet 等早期卷积网络的重要贡献之一，就是将局部感受野和权重共享系统地用于实际视觉任务。</p>
+<p>这其实是一种非常重要的设计思想：</p>
+<p><strong>不必让网络从数据中重新学习所有关系，可以把我们已知的数据结构直接写进网络结构。</strong></p>
+<h3 id="section-8-3">5.3 AlexNet：硬件限制也会创造新的架构设计</h3>
+<p>2012 年，AlexNet 在 ImageNet 竞赛中取得了具有里程碑意义的成绩。</p>
+<p>它不仅推动了深度学习的发展，也展示了 GPU 在大规模神经网络训练中的价值。</p>
+<p>但一个有趣的细节是：</p>
+<p>当时的 GPU 显存非常有限。</p>
+<p>AlexNet 论文中，研究者采用两块 GTX 580 GPU，每块显卡只有 3GB 显存，并将网络中的特征计算分布在两块 GPU 上。</p>
+<p>为了控制计算和通信开销，不同层的特征图之间采用了不同的连接模式，其中一些层只与本 GPU 上的特征图连接。</p>
+<p>这体现了硬件限制对网络连接方式的影响。</p>
+<p>后来，分组卷积（Group Convolution）逐渐成为重要的结构设计方式。</p>
+<p>2017 年，ResNeXt 将组数作为与网络深度、宽度并列的重要设计维度，称为 Cardinality（基数）。</p>
+<p>其基本思想是：</p>
+<p>把原本所有通道之间的密集交互，拆成多个相对独立的组。</p>
+<p>这可以减少计算量，也会改变特征之间的交互结构。</p>
+<p>不过，不能把分组卷积的全部历史起源都归结为 AlexNet 的显存限制。分组连接作为一种更一般的结构思想，其应用和发展有更广泛的背景。</p>
+<p>这里真正重要的启示是：</p>
+<p><strong>网络架构并不是脱离硬件环境独立存在的数学对象。现实中的计算资源，会直接影响研究者最终选择什么样的结构。</strong></p>
+<h3 id="section-8-4">5.4 Bottleneck：为什么先压缩，再加工，最后恢复？</h3>
+<p>很多网络会采用瓶颈结构（Bottleneck）。</p>
+<p>例如：</p>
+<div class="math math-block">$$
+d\rightarrow \frac d4\rightarrow \frac d4\rightarrow d
+$$</div>
+<p>先通过 <span class="math">\(1\times1\)</span> 卷积降低通道维度，再进行主要计算，最后恢复通道维度。</p>
+<p>这样做可以显著降低某些卷积操作的计算量。</p>
+<p>它背后的思想是：</p>
+<p>不是所有维度都需要在整个计算过程中保持原来的大小。</p>
+<p>如果某个运算可以在低维空间中完成，就不必一直使用高维表示进行计算。</p>
+<p>这与低秩分解有一定联系：</p>
+<p>把原本复杂的高维变换拆分成若干个成本更低的子变换。</p>
+<h3 id="section-8-5">5.5 Depthwise Separable Convolution：把空间计算和通道计算拆开</h3>
+<p>MobileNet、Xception 等架构使用了深度可分离卷积。</p>
+<p>普通卷积同时处理空间维度和通道维度。</p>
+<p>深度可分离卷积则分成两步：</p>
+<p><strong>第一步：Depthwise Convolution。</strong></p>
+<p>每个输入通道独立进行空间卷积。</p>
+<p><strong>第二步：Pointwise Convolution。</strong></p>
+<p>使用 <span class="math">\(1\times1\)</span> 卷积进行通道之间的信息组合。</p>
+<figure class="concept-figure">
+<div class="flowline"><span>输入通道</span><b>→</b><span>Depthwise：逐通道空间卷积</span><b>→</b><span>Pointwise：1×1 通道混合</span><b>→</b><span>输出</span></div>
+<figcaption>深度可分离卷积分解空间维度与通道维度上的计算。</figcaption>
+</figure>
+<p>它的优势在于能够大幅减少参数量和理论计算量。</p>
+<p>但这里存在一个容易被忽略的问题：</p>
+<p>FLOPs 少，不代表实际执行速度一定快。</p>
+<p>因为 GPU 不仅有计算单元，还有内存带宽、缓存和并行调度等限制。</p>
+<p>如果一个操作减少了大量乘法，却引入了频繁的内存访问、较小的计算块或不理想的数据布局，那么实际速度可能并没有想象中那么快。</p>
+<p>这就引出一个非常重要的工程原则：</p>
+<p><strong>理论计算量、参数量、显存占用和真实运行速度，是四个相关但不等价的指标。</strong></p>
+<p>设计高效网络时，必须知道当前究竟是哪种资源成为瓶颈。</p>
+<hr/>
+<h2 id="section-9">第六章：让远距离信息直接交流——从 RNN、CNN 到 Transformer 和 Mamba</h2>
+<h3 id="section-9-1">6.1 RNN 的麻烦：消息必须一个接一个地传</h3>
+<p>假设我们需要处理一句话：</p>
+<blockquote>
+<p>我把那本昨天从图书馆借来的书放在桌子上。</p>
+</blockquote>
+<p>当模型处理到「书」时，它可能需要关联前面较远位置的「借来」。</p>
+<p>在 RNN 中，每个时间步的状态依赖前一个时间步：</p>
+<div class="math math-block">$$
+h_t=f(h_{t-1},x_t)
+$$</div>
+<p>信息必须通过一系列状态逐步传递。</p>
+<p>如果两个词相距很远，它们之间的信息传递路径也就很长。</p>
+<p>这会带来两个问题：</p>
+<p>第一，长距离信息可能在逐步传播中衰减。</p>
+<p>第二，序列中的时间步具有依赖关系，不容易在训练时完全并行计算。</p>
+<h3 id="section-9-2">6.2 CNN 也有问题：扩大感受野需要增加网络层数</h3>
+<p>CNN 能够并行处理多个位置，但普通卷积的感受野有限。</p>
+<p>如果希望让一个位置直接感知很远的另一个位置，通常需要：</p>
+<ul>
+<li>增加网络深度；</li>
+<li>使用更大的卷积核；</li>
+<li>使用空洞卷积；</li>
+<li>采用层次化结构。</li>
+</ul>
+<p>这并不意味着 CNN 无法进行全局信息交互，而是说如何高效建立远距离联系，是它需要解决的问题。</p>
+<h3 id="section-9-3">6.3 Transformer：让不同位置直接交换信息</h3>
+<p>2017 年，Vaswani 等人提出 Transformer，论文名称就是著名的：</p>
+<p><strong>Attention Is All You Need。</strong></p>
+<p>Transformer 使用自注意力机制，让序列中的不同位置能够根据内容直接建立联系。</p>
+<p>对于一个输入序列：</p>
+<div class="math math-block">$$
+X\in\mathbb R^{n\times d}
+$$</div>
+<p>首先通过线性变换生成：</p>
+<div class="math math-block">$$
+Q=XW_Q
+$$</div>
+<div class="math math-block">$$
+K=XW_K
+$$</div>
+<div class="math math-block">$$
+V=XW_V
+$$</div>
+<p>然后计算注意力：</p>
+<div class="math math-block">$$
+Attention(Q,K,V)=softmax\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+$$</div>
+<p>其中：</p>
+<ul>
+<li>Q（Query）：当前要寻找什么信息；</li>
+<li>K（Key）：每个位置提供什么匹配线索；</li>
+<li>V（Value）：每个位置实际携带什么信息。</li>
+</ul>
+<figure class="concept-figure">
+<div class="flowline"><span>输入 X</span><b>→</b><span>生成 Q、K、V</span><b>→</b><span>计算 QKᵀ 相似度</span><b>→</b><span>Softmax</span><b>→</b><span>加权汇总 V</span></div>
+<figcaption>缩放点积注意力的核心计算流程。</figcaption>
+</figure>
+<p>可以把它想象成一个大型会议室。</p>
+<p>RNN 像是排队传话，每个人只能先听前面一个人的消息，再传给下一个人。</p>
+<p>Transformer 则允许每个人根据当前讨论内容，直接关注其他所有人的发言。</p>
+<p>它带来了两个重要优势：</p>
+<ul>
+<li>不必只依赖逐步传递的长链条来建立远距离联系；</li>
+<li>训练时能够更充分地利用矩阵运算，实现序列位置之间的并行计算。</li>
+</ul>
+<p>原始 Transformer 论文明确指出，相比当时主流循环架构，它具有更好的并行化能力，并能有效建模全局依赖。</p>
+<h3 id="section-9-4">6.4 但是 Transformer 又引入了新的问题</h3>
+<p>标准全注意力机制的计算复杂度与序列长度的平方相关。</p>
+<p>如果序列长度是 <span class="math">\(n\)</span>，注意力矩阵的大小就是：</p>
+<div class="math math-block">$$
+n\times n
+$$</div>
+<p>假设上下文长度从 4,000 增加到 128,000。</p>
+<p>长度增加了 32 倍。</p>
+<p>单纯看注意力矩阵涉及的位置对数量：</p>
+<div class="math math-block">$$
+32^2=1024
+$$</div>
+<p>这意味着朴素全注意力实现中，相关计算和中间存储可能面临非常大的压力。</p>
+<p>注意，这里说的是注意力中的序列长度复杂度，不是整个 Transformer 的所有计算都只由这一个公式决定。</p>
+<h3 id="section-9-5">6.5 ViT：去掉卷积先验，看看 Transformer 能不能处理图像</h3>
+<p>2020 年，Dosovitskiy 等人提出 Vision Transformer（ViT）。</p>
+<p>他们将图像切分成多个 Patch，再把每个 Patch 转换为向量，送入 Transformer。</p>
+<figure class="concept-figure">
+<div class="flowline"><span>图像</span><b>→</b><span>切分 Patch</span><b>→</b><span>向量嵌入</span><b>→</b><span>Transformer 编码器</span><b>→</b><span>任务输出</span></div>
+<figcaption>ViT 将图像块转换为序列化表示，再使用 Transformer 进行建模。</figcaption>
+</figure>
+<p>这里发生了一件很有意思的事：</p>
+<p>传统 CNN 把局部性和平移等变性直接写进了网络结构。</p>
+<p>而纯 ViT 并没有以相同方式内置这些卷积归纳偏置。</p>
+<p>研究表明，在大规模预训练数据支持下，ViT 可以在多种视觉任务中取得非常优秀的结果。</p>
+<p>这给出了一个很有价值的启示：</p>
+<p>结构先验并不是越多越好，也不是越少越好。</p>
+<p>数据规模、数据质量、任务性质和模型容量都会影响先验的价值。</p>
+<p>数据较少时，合适的结构先验可以帮助模型减少无效搜索；数据足够丰富时，模型也可能从数据中学习原本由先验提供的部分规律。</p>
+<p>但这并不意味着先验强度与数据量之间存在一个简单的反比例公式。</p>
+<h3 id="section-9-6">6.6 FlashAttention：有时候，真正拖慢计算的不是计算本身</h3>
+<p>Transformer 的注意力计算需要大量矩阵运算。</p>
+<p>很容易让人产生一个想法：</p>
+<p>既然计算量这么大，那我们应该尽量减少乘法次数。</p>
+<p>于是，研究者提出了各种稀疏注意力、低秩注意力和近似注意力算法。</p>
+<p>但是，有些方法理论计算量下降了，实际运行速度却没有明显改善。</p>
+<p>为什么？</p>
+<p>因为 GPU 不只是一个计算器。</p>
+<p>它还需要从高带宽显存（HBM）读取数据，将数据移动到片上 SRAM 等更接近计算单元的存储位置，再执行运算。</p>
+<p>对于大型矩阵运算，有时数据搬运比算术计算更容易成为瓶颈。</p>
+<p>2022 年，Tri Dao 等人提出 FlashAttention。</p>
+<p>它没有简单地修改注意力公式，也没有通过近似牺牲计算精度来减少标准全注意力的渐近算术复杂度。</p>
+<p>它采用分块（Tiling）策略，将计算安排成更符合 GPU 存储层次结构的方式，减少 HBM 与片上 SRAM 之间的数据读写。</p>
+<figure class="concept-figure">
+<div class="flowline"><span>HBM 中的数据块</span><b>→</b><span>分块加载到片上 SRAM</span><b>→</b><span>块内完成注意力计算</span><b>→</b><span>写回必要结果</span></div>
+<figcaption>FlashAttention 的 IO 感知思路：减少大规模中间矩阵在高带宽显存与片上存储之间的往返搬运。</figcaption>
+</figure>
+<p>这说明：</p>
+<p><strong>优化计算系统，不能只盯着做了多少次乘法，还必须关注数据究竟搬了多少次、搬了多远。</strong></p>
+<p>有时候，少做几次数据搬运，比少做几次乘法更有价值。</p>
+<h3 id="section-9-7">6.7 Mamba：换一种信息处理方式</h3>
+<p>2023 年，Gu 和 Dao 提出了 Mamba，一种基于选择性状态空间模型（Selective State Space Model）的架构。</p>
+<p>它采用输入相关的状态空间参数，让模型能够根据当前输入内容选择性地保留或过滤信息，并通过硬件感知的算法实现高效计算。</p>
+<p>与标准全注意力不同，Mamba 在序列长度方向具有线性时间复杂度的设计特点。</p>
+<p>这代表另一种架构思路：</p>
+<p>Transformer 通过显式建立大量 token 之间的注意力关系进行信息交互。</p>
+<p>选择性状态空间模型则通过状态更新机制来处理信息流动。</p>
+<p>两者各有优缺点，具体表现依赖任务、实现和硬件环境。</p>
+<p>不能简单地认为线性复杂度就必然优于全注意力，也不能认为全注意力在所有长序列任务中都是最佳选择。</p>
+<p>这也推动了混合架构的探索。</p>
+<p>从 CNN 到 Transformer，再到 Mamba，这段历史告诉我们：</p>
+<p><strong>网络架构的一个核心任务，就是寻找信息交互方式与计算成本之间的平衡。</strong></p>
+<hr/>
+<h2 id="section-10">第七章：为什么小模型的经验，放大以后可能失效？——从 EfficientNet 到 μP</h2>
+<h3 id="section-10-1">7.1 网络变大，究竟应该加深、加宽还是提高分辨率？</h3>
+<p>假设你有一个表现不错的神经网络，现在准备把它扩大两倍。</p>
+<p>怎么扩大？</p>
+<p>方案一：增加层数。</p>
+<p>方案二：增加每层的通道数。</p>
+<p>方案三：提高输入图像的分辨率。</p>
+<p>问题在于，这三种操作的成本和收益并不相同。</p>
+<p>例如，对于典型卷积网络，计算量往往近似满足：</p>
+<div class="math math-block">$$
+FLOPs\propto d\cdot w^2\cdot r^2
+$$</div>
+<p>其中：</p>
+<ul>
+<li><span class="math">\(d\)</span>：深度；</li>
+<li><span class="math">\(w\)</span>：宽度；</li>
+<li><span class="math">\(r\)</span>：输入分辨率。</li>
+</ul>
+<p>这意味着宽度和分辨率增加，往往会产生比较显著的计算开销。</p>
+<p>如果三个维度同时增加，又需要考虑它们之间的相互影响。</p>
+<p>2019 年，Tan 和 Le 提出了 EfficientNet，通过复合缩放（Compound Scaling）协调调整深度、宽度和分辨率。</p>
+<p>其基本思想是：</p>
+<div class="math math-block">$$
+d=\alpha^\phi
+$$</div>
+<div class="math math-block">$$
+w=\beta^\phi
+$$</div>
+<div class="math math-block">$$
+r=\gamma^\phi
+$$</div>
+<p>并在相应的计算预算假设下协调：</p>
+<div class="math math-block">$$
+\alpha\beta^2\gamma^2\approx 2
+$$</div>
+<p>这里的 <span class="math">\(\phi\)</span> 是整体缩放系数。</p>
+<p>这样就可以围绕一个基础网络，建立一系列不同规模的模型。</p>
+<h3 id="section-10-2">7.2 Scaling Laws：模型规模与数据规模之间存在可测量关系</h3>
+<p>随着大规模语言模型的发展，研究者开始系统研究：</p>
+<p>模型参数增加，损失会如何变化？</p>
+<p>训练数据增加，损失会如何变化？</p>
+<p>计算预算增加，应该怎样在模型和数据之间分配？</p>
+<p>Kaplan 等人在 2020 年的研究中，发现语言模型性能与模型规模、数据量和计算量之间存在一定的幂律关系。</p>
+<p>但后来研究者发现，原来的计算最优分配估计并不总是准确。</p>
+<p>2022 年，Hoffmann 等人发表了著名的 Chinchilla 研究。</p>
+<p>他们通过大量实验提出，在其研究的训练计算预算和模型设置下，模型规模与训练 token 数应该更加均衡地增长。</p>
+<p>其核心结果是：</p>
+<p>当模型参数翻倍时，训练 token 数也应相应翻倍，才能更好地利用相同的计算预算。</p>
+<p>这个结论通常被简化成约 20 个训练 token 对应一个模型参数。</p>
+<p>但必须注意：</p>
+<p>这不是适用于所有模型、所有训练数据和所有部署场景的固定定律，而是特定训练条件下的计算最优经验规律。</p>
+<p>它带来了一个重要认识：</p>
+<p><strong>模型多大、数据多少、计算资源如何分配，必须作为一个整体问题研究。</strong></p>
+<h3 id="section-10-3">7.3 μP：小模型调好的参数，能不能直接迁移到大模型？</h3>
+<p>大模型训练还有一个非常现实的问题：</p>
+<p>大模型太贵了。</p>
+<p>假设你正在训练一个 100B 模型。</p>
+<p>每调整一次学习率，都可能付出极高的计算成本。</p>
+<p>如果小模型上调好的学习率，到了大模型上全部失效，那每一次扩展都需要重新进行昂贵的实验。</p>
+<p>2021—2022 年，Yang、Hu 等人提出并发展了 Maximal Update Parameterization（μP，最大更新参数化）及相关的超参数迁移方法。</p>
+<p>它的目标是通过合适的参数化方式，使模型宽度变化时的特征学习和参数更新保持可控。</p>
+<p>这样，研究者就可以在较小模型上进行超参数调节，再将很多最优超参数迁移到更大模型。</p>
+<p>这里非常重要的一点是：</p>
+<p>μP 不是简单地告诉你「把学习率改成某个数值」。</p>
+<p>它试图从参数尺度、初始化和更新规律上，建立一套随模型规模变化而保持稳定的参数化方案。</p>
+<h3 id="section-10-4">7.4 2026 年的新进展：宽度与深度需要联合考虑</h3>
+<p>随着大模型继续扩展，只考虑宽度变化已经不够。</p>
+<p>网络可能同时增加宽度和深度。</p>
+<p>这时，原有的参数化方案是否仍然能够保持稳定？</p>
+<p>2026 年，Zheng 等人提出了《Spectral Condition for μP under Width-Depth Scaling》，从谱条件角度研究 μP 在宽度与深度联合扩展时的参数和更新尺度，并通过 GPT-2 风格语言模型实验验证相应的迁移效果。</p>
+<p>这项研究的价值在于，它试图把过去主要针对宽度扩展的参数化理论，进一步推广到宽度和深度联合变化的情形。</p>
+<p>但不能把它简单总结成一条「所有深度网络都必须采用 <span class="math">\(1/L\)</span> 缩放」的规则。</p>
+<p>实际缩放关系还取决于残差块内部的结构、参数化方式、优化器和具体理论条件。</p>
+<h3 id="section-10-5">7.5 这一阶段真正解决的是什么？</h3>
+<p>过去设计网络，研究者经常是在某个规模下寻找最好的参数组合。</p>
+<p>现在，研究者更加关注：</p>
+<ul>
+<li>网络变宽时，参数应该怎样变化？</li>
+<li>网络变深时，残差尺度应该怎样调整？</li>
+<li>训练数据增加时，模型容量是否需要同步增加？</li>
+<li>小模型的最优学习率是否能够迁移到大模型？</li>
+<li>不同规模下，网络的训练动力学是否保持相似？</li>
+</ul>
+<p>这意味着架构设计开始从寻找一个最优点，转向研究一条可持续扩展的路径。</p>
+<p><strong>一个在小规模下表现最好的模型，不一定是最值得扩展的模型；能够稳定扩展，才是一种更重要的设计能力。</strong></p>
+<hr/>
+<h2 id="section-11">第八章：模型参数越多，是否意味着每次计算都要付出同样的代价？——MoE 与条件计算</h2>
+<h3 id="section-11-1">8.1 一个非常昂贵的问题</h3>
+<p>假设你拥有一个 100B 参数的模型。</p>
+<p>每次处理一个 token，都需要调用整个模型的所有参数吗？</p>
+<p>传统稠密网络通常会让每个输入经过同样的主体计算路径。</p>
+<p>这意味着参数增加，单 token 的计算成本也会大幅增加。</p>
+<p>但从直觉上看，这并不是唯一的选择。</p>
+<p>人类社会有大量专业分工。</p>
+<p>看病时，不需要让医院所有医生同时诊断一个患者。</p>
+<p>一个复杂工厂也不需要让每个工人参与每一道工序。</p>
+<p>能不能让神经网络也采用类似的机制？</p>
+<p>这就是条件计算（Conditional Computation）的重要出发点。</p>
+<h3 id="section-11-2">8.2 MoE：让不同输入使用不同专家</h3>
+<p>Mixture of Experts（MoE，混合专家）架构将模型中的部分计算模块设计为多个专家网络。</p>
+<p>输入经过路由机制后，只激活其中部分专家。</p>
+<p>假设有 8 个专家：</p>
+<div class="math math-block">$$
+E_1,E_2,\ldots,E_8
+$$</div>
+<p>对于一个输入 <span class="math">\(x\)</span>，路由器计算各专家的权重：</p>
+<div class="math math-block">$$
+p_i(x)
+$$</div>
+<p>然后只选择其中 Top-K 个专家参与计算：</p>
+<div class="math math-block">$$
+y=\sum_{i\in TopK(x)}p_i(x)E_i(x)
+$$</div>
+<figure class="concept-figure">
+<div class="flowline"><span>输入 Token</span><b>→</b><span>路由器</span><b>→</b><span>选择 Top-K 专家</span><b>→</b><span>专家计算</span><b>→</b><span>合并输出</span></div>
+<figcaption>稀疏 MoE 的概念流程：路由器根据输入，为不同 token 分配部分专家计算。</figcaption>
+</figure>
+<p>这意味着：</p>
+<p>模型可以拥有大量专家参数，但每个 token 只使用其中一部分专家进行计算。</p>
+<p>因此，<strong>模型的总参数容量和每个 token 的激活计算量可以在一定程度上解耦。</strong></p>
+<p>2017 年，Shazeer 等人提出了稀疏门控专家模型的重要方案。</p>
+<p>2021 年，Fedus、Zoph 和 Shazeer 提出了 Switch Transformer，进一步简化专家路由，并展示了大规模稀疏模型的训练能力。</p>
+<h3 id="section-11-3">8.3 MoE 并没有让计算成本凭空消失</h3>
+<p>如果一个模型有很多专家，并不意味着它就一定更高效。</p>
+<p>MoE 也带来了新的问题：</p>
+<p><strong>第一，负载均衡问题。</strong></p>
+<p>如果所有 token 都选择同一个专家，其他专家就会闲置。</p>
+<p>这相当于一个医院有十个科室，结果所有患者都挤进了内科。</p>
+<p><strong>第二，通信成本。</strong></p>
+<p>当专家分布在不同 GPU 上，token 需要通过网络传输到对应专家，再把结果传回来。</p>
+<p>这可能涉及昂贵的 All-to-All 通信。</p>
+<p><strong>第三，训练稳定性。</strong></p>
+<p>路由器需要学习如何选择专家。如果分配不合理，可能导致专家利用率不均衡、路由震荡或者专家专业化不足。</p>
+<p><strong>第四，推理部署成本。</strong></p>
+<p>虽然每个 token 不必激活所有参数，但模型的全部专家仍然需要存储或能够被访问。</p>
+<p>因此，总参数量、激活参数量、显存占用和实际推理延迟必须分别衡量。</p>
+<h3 id="section-11-4">8.4 训练最优不等于整个生命周期最优</h3>
+<p>这里还有一个非常重要的认识。</p>
+<p>假设两种模型：</p>
+<ul>
+<li>模型 A：参数更多，训练时损失更低，但推理成本很高；</li>
+<li>模型 B：训练时使用更多计算，最终参数较少，但推理速度更快。</li>
+</ul>
+<p>如果模型只需要训练一次，却要服务几十亿次请求，那么模型 B 可能具有更低的生命周期总成本。</p>
+<p>因此，架构设计不能只考虑预训练的计算预算。</p>
+<p>还需要考虑：</p>
+<div class="math math-block">$$
+C_{\text{lifetime}}=C_{\text{training}}+C_{\text{inference}}+C_{\text{storage}}+C_{\text{communication}}+C_{\text{deployment}}
+$$</div>
+<p>这不是一个普遍适用的精确成本公式，而是提醒我们，实际工程需要把各类生命周期成本一起纳入决策。</p>
+<p>从 MoE 到量化、蒸馏、KV Cache 压缩，背后体现的都是一个重要方向：</p>
+<p><strong>原本被绑定在一起的容量、激活、计算和存储，可以尝试拆开设计，分别优化。</strong></p>
+<hr/>
+<h2 id="section-12">第九章：架构设计不应该只寻找一个最优模型——从 NAS 到 RegNet 和 NSC</h2>
+<h3 id="section-12-1">9.1 神经网络的设计空间有多大？</h3>
+<p>假设我们要设计一个四阶段网络。</p>
+<p>每个阶段可以调整：</p>
+<ul>
+<li>深度；</li>
+<li>宽度；</li>
+<li>卷积核大小；</li>
+<li>分组数量；</li>
+<li>扩展比例；</li>
+<li>下采样方式；</li>
+<li>不同模块之间的连接方式。</li>
+</ul>
+<p>如果每个变量都有若干种选择，那么组合数量会迅速增长。</p>
+<p>更不用说 Transformer 还要考虑：</p>
+<ul>
+<li>模型宽度；</li>
+<li>注意力头数；</li>
+<li>FFN 比例；</li>
+<li>GQA/MQA；</li>
+<li>层数；</li>
+<li>专家数量；</li>
+<li>激活专家数量；</li>
+<li>注意力与其他模块的比例；</li>
+<li>不同层的异构配置。</li>
+</ul>
+<p>于是，研究者开始使用神经架构搜索（Neural Architecture Search，NAS）。</p>
+<p>NAS 的目标是自动探索架构空间，寻找性能较好的模型。</p>
+<p>但它也存在明显局限：</p>
+<p>搜索结果可能绑定特定的数据集、硬件和训练设置。</p>
+<p>当应用环境发生变化时，原来找到的最优模型未必仍然优秀。</p>
+<p>而且，搜索算法通常给出的只是一个具体配置，不一定能够解释为什么这种配置有效。</p>
+<h3 id="section-12-2">9.2 RegNet：与其寻找一个好模型，不如寻找一套好模型的生成规则</h3>
+<p>2020 年，Radosavovic 等人提出了《Designing Network Design Spaces》。</p>
+<p>其思想非常值得关注：</p>
+<p>传统方式是设计一个网络。</p>
+<p>RegNet 则试图设计一套能够生成多个网络的设计空间。</p>
+<p>这相当于把研究目标从：</p>
+<p>「哪个模型最好？」</p>
+<p>提升为：</p>
+<p>「什么样的设计规则能够持续生成好模型？」</p>
+<p>论文通过对一批网络进行采样、训练和统计分析，利用经验误差分布函数（Error Empirical Distribution Function，EDF）来评价整个设计空间。</p>
+<p>其核心形式为：</p>
+<div class="math math-block">$$
+F(e)=\frac{1}{n}\sum_{i=1}^{n}\mathbf 1[e_i&lt;e]
+$$</div>
+<p>其中：</p>
+<ul>
+<li><span class="math">\(n\)</span>：模型数量；</li>
+<li><span class="math">\(e_i\)</span>：第 <span class="math">\(i\)</span> 个模型的误差；</li>
+<li><span class="math">\(\mathbf 1\)</span>：指示函数。</li>
+</ul>
+<p>它描述的是：</p>
+<p>有多少比例的模型，能够达到某个误差水平。</p>
+<p>这样，我们就不再只关心某次实验碰巧找到的最好模型，而是关注一个设计空间整体能够生成多少优秀模型。</p>
+<p>RegNet 的研究表明，在其研究的设计空间和视觉任务中，优秀网络的宽度与深度可以通过相对简单的规则进行描述，并且这类规则在不同计算规模下具有一定的适用性。</p>
+<p>这是一种重要的研究方法转变：</p>
+<p><strong>研究者不只是寻找最优架构，还开始寻找能够稳定产生优秀架构的设计规律。</strong></p>
+<h3 id="section-12-3">9.3 2026 年的新探索：NSC 能否从架构本身估计容量？</h3>
+<p>2026 年 9 月，Zhu 等人提出 Neural Spectral Capacity（NSC）。</p>
+<p>这项研究试图从网络权重矩阵的奇异值谱出发，构造一个能够反映架构容量分配特点的指标。</p>
+<p>与参数量和 FLOPs 不同，NSC 关注的是网络结构中不同层的容量配置。</p>
+<p>研究进一步利用 NSC 的逐层可加性，提出 NSC-DP，通过动态规划，在给定资源约束下求解 NSC 指标最优的架构配置。</p>
+<p>这里有一个非常值得注意的区别：</p>
+<p><strong>NSC-DP 所谓的精确最优，是对 NSC 这一代理目标而言的精确最优，不等于已经证明它能够直接找到任意下游任务的真实性能最优架构。</strong></p>
+<p>这也是新型架构评价指标必须面对的问题：</p>
+<p>代理指标与实际任务性能究竟有多大相关性？</p>
+<p>它在什么模型结构、数据分布和计算资源范围内有效？</p>
+<p>换一个应用场景是否仍然有效？</p>
+<p>这些都需要继续验证。</p>
+<h3 id="section-12-4">9.4 设计空间方法的真正价值</h3>
+<p>从 NAS 到 RegNet，再到 NSC，背后出现了一个更深刻的变化：</p>
+<p>过去，研究者习惯于在庞大的设计空间里寻找一个最好的点。</p>
+<p>现在，研究者开始思考：</p>
+<ul>
+<li>能不能先缩小设计空间？</li>
+<li>能不能将复杂架构参数化成少数有意义的变量？</li>
+<li>能不能通过统计评价整个模型群体？</li>
+<li>能不能找到跨计算规模成立的规律？</li>
+<li>能不能在训练之前就排除一批明显不合理的设计？</li>
+</ul>
+<p>这意味着架构设计逐渐从「搜索最好的点」，走向「研究好的点为什么集中在某些结构区域」。</p>
+<p>这才是设计空间理论更深层的价值。</p>
+<hr/>
+<h2 id="section-13">第二部分：六十多年的技术创新背后，究竟有哪些共同规律？</h2>
+<p>前面九章讲了九类重要的问题与技术发展。</p>
+<p>如果只记住这些模型和算法，最终得到的仍然是一份技术名词清单。</p>
+<p>真正有价值的是进一步抽象：</p>
+<p><strong>不同年代、不同任务、不同模型架构，是否反复使用了一些共同的设计思想？</strong></p>
+<p>我认为可以归纳为五类重要的架构设计原则。</p>
+<p>这五类原则不是已经得到严格证明的五条公理，而是从历史发展中归纳出的、具有较强解释力和工程参考价值的设计模式。</p>
+<h2 id="section-14">原则一：保持有效的信息通路——不要让网络把自己堵死</h2>
+<p>这一原则贯穿了很长的技术历史。</p>
+<p>LSTM 为什么引入恒定误差通路？</p>
+<p>因为长期记忆需要一条相对直接的传播路径。</p>
+<p>Highway Network 为什么引入门控跳跃连接？</p>
+<p>因为信息不应该被迫经过每一个变换层。</p>
+<p>ResNet 为什么采用：</p>
+<div class="math math-block">$$
+y=x+F(x)
+$$</div>
+<p>因为网络应该能够方便地保留原始输入，而不必每次重新学习完整映射。</p>
+<p>Pre-LN 为什么改变归一化位置？</p>
+<p>因为残差主干需要保持更合理的信号传播特性。</p>
+<p>它们并不是同一种具体技术，但都体现了一个共同原则：</p>
+<p><strong>网络可以变得复杂，但不能让关键的信息传播路径变得脆弱。</strong></p>
+<p>进一步说，一个好的网络拓扑，应该关注：</p>
+<ol>
+<li>信息从哪里进入？</li>
+<li>信息通过什么路径传播？</li>
+<li>不同层之间如何交互？</li>
+<li>是否存在过长、过复杂或不必要的传播路径？</li>
+<li>是否存在更直接的有效通路？</li>
+</ol>
+<p>这里可以提出一个非常重要的设计检查：</p>
+<p>当增加网络层数或增加计算模块时，能否让原有功能在新的结构中仍然容易实现？</p>
+<p>在残差网络中，可以通过设置残差分支接近零，使模块接近恒等映射。</p>
+<p>但这并不意味着所有架构都必须使用残差连接，也不意味着表达空间上的嵌套就能自动保证有限步优化的可达集合单调扩张。</p>
+<p>这是一个重要的设计目标，而不是一个已经对所有架构成立的普遍定理。</p>
+<h2 id="section-15">原则二：保持信号与更新的尺度稳定——不要让网络越训练越失控</h2>
+<p>信息通路解决的是「能不能传」。</p>
+<p>尺度稳定解决的是「传过去之后，还能不能保持合理的数值状态」。</p>
+<p>一个网络即使拥有完美的连接关系，如果激活不断放大、梯度不断衰减，或者参数更新随着深度和宽度变化而失控，依然无法正常训练。</p>
+<p>Xavier 和 He 初始化试图控制初始化时的方差。</p>
+<p>BatchNorm 和 LayerNorm 通过归一化改善信号尺度。</p>
+<p>Fixup 通过初始化和残差分支缩放降低对归一化的依赖。</p>
+<p>μP 则从模型宽度扩展的角度，研究参数与更新尺度如何调整，才能保持稳定的特征学习。</p>
+<p>因此，这些技术共同指向一个设计原则：</p>
+<p><strong>不能只看网络中有多少计算单元，还必须控制整个计算系统的尺度关系。</strong></p>
+<p>这里尤其需要关注三个量：</p>
+<h3 id="section-15-1">1. 激活尺度</h3>
+<p>不同层的激活是否保持合理范围？</p>
+<h3 id="section-15-2">2. 梯度尺度</h3>
+<p>不同层的梯度是否会随着深度、宽度变化而严重失衡？</p>
+<h3 id="section-15-3">3. 参数更新尺度</h3>
+<p>每一步训练究竟对参数和特征表示产生了多大影响？</p>
+<p>例如，可以观察更新相对参数本身的比例：</p>
+<div class="math math-block">$$
+r_l=\frac{\|\Delta W_l\|}{\|W_l\|+\epsilon}
+$$</div>
+<p>其中：</p>
+<ul>
+<li><span class="math">\(\Delta W_l\)</span>：当前更新量；</li>
+<li><span class="math">\(W_l\)</span>：参数；</li>
+<li><span class="math">\(\epsilon\)</span>：数值稳定项。</li>
+</ul>
+<p>这个指标能够辅助判断某一层的更新是否异常。</p>
+<p>不过，具体合理区间取决于模型结构、参数化、训练阶段和优化器，不能直接用一个固定阈值判断所有网络。</p>
+<p><strong>架构设计必须同时考虑结构和动力学。</strong></p>
+<h2 id="section-16">原则三：利用结构先验，避免无意义的自由度</h2>
+<p>这是 CNN、分组卷积、低秩分解和 MoE 等技术共同体现的重要方向。</p>
+<p>假设我们要训练一个识别图像的网络。</p>
+<p>如果完全不限制神经元之间的连接，网络就必须通过训练自行发现图像具有局部空间结构这一事实。</p>
+<p>这需要大量参数和数据。</p>
+<p>而 CNN 直接将局部连接和权重共享写入网络结构。</p>
+<p>这样，模型不必从零开始学习所有空间关系。</p>
+<p>类似地：</p>
+<table>
+<thead>
+<tr>
+<th>结构设计</th>
+<th>施加的约束或先验</th>
+<th>主要收益</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>卷积</td>
+<td>局部连接与权重共享</td>
+<td>利用图像空间结构</td>
+</tr>
+<tr>
+<td>分组卷积</td>
+<td>限制通道之间的密集交互</td>
+<td>减少计算与参数</td>
+</tr>
+<tr>
+<td>Bottleneck</td>
+<td>通过低维变换处理部分计算</td>
+<td>降低计算成本</td>
+</tr>
+<tr>
+<td>Depthwise Separable</td>
+<td>分离空间计算与通道计算</td>
+<td>降低卷积开销</td>
+</tr>
+<tr>
+<td>稀疏注意力</td>
+<td>限制 token 之间的交互范围</td>
+<td>减少部分注意力成本</td>
+</tr>
+<tr>
+<td>MoE</td>
+<td>根据输入选择部分专家</td>
+<td>增加总参数容量而不激活全部专家</td>
+</tr>
+</tbody>
+</table>
+<p>但结构先验并不是越强越好。</p>
+<p>过强的先验可能把真正重要的信息交互也限制掉。</p>
+<p>例如：</p>
+<p>CNN 的局部性假设在图像任务中很有用，但如果某些任务需要频繁进行远距离信息交互，就可能需要更灵活的结构。</p>
+<p>因此，必须同时考虑：</p>
+<ul>
+<li>数据本身有什么结构？</li>
+<li>任务需要什么样的信息交互？</li>
+<li>当前数据量是否足以支持更自由的模型？</li>
+<li>加入的先验是否与真实数据规律匹配？</li>
+</ul>
+<p>可以将其概括为：</p>
+<div class="math math-block">$$
+\text{有效设计}=\text{合理先验}+\text{足够表达空间}
+$$</div>
+<p>这不是一个数值计算公式，而是一种设计思想。</p>
+<p><strong>好的先验不是替模型规定所有答案，而是帮助模型少走不必要的弯路。</strong></p>
+<h2 id="section-17">原则四：打破不合理的资源绑定——让容量、计算和存储各司其职</h2>
+<p>这是现代大模型架构越来越重要的设计方向。</p>
+<p>传统稠密网络中，模型参数与每个 token 的计算量存在比较紧密的联系。</p>
+<p>但这并不是唯一可能的结构。</p>
+<p>MoE 让总专家参数量与每个 token 的激活计算量部分解耦。</p>
+<p>量化让模型的数值精度和存储成本可以分别调整。</p>
+<p>蒸馏让大模型学习到的能力可以转移到较小模型中。</p>
+<p>KV Cache 压缩则试图降低长上下文推理时的存储负担。</p>
+<p>这些方案背后有一个共同思想：</p>
+<p><strong>原本被我们习惯性地绑定在一起的量，不一定必须永远绑定。</strong></p>
+<p>可以进一步将模型资源划分为：</p>
+<table>
+<thead>
+<tr>
+<th>资源维度</th>
+<th>主要关注的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>模型总参数量</td>
+<td>模型能够容纳多少可学习参数？</td>
+</tr>
+<tr>
+<td>激活参数量</td>
+<td>每次输入实际使用多少参数？</td>
+</tr>
+<tr>
+<td>训练计算量</td>
+<td>模型训练需要多少计算？</td>
+</tr>
+<tr>
+<td>推理计算量</td>
+<td>每个 token 需要多少计算？</td>
+</tr>
+<tr>
+<td>参数存储</td>
+<td>模型权重需要占用多少内存？</td>
+</tr>
+<tr>
+<td>激活存储</td>
+<td>前向和反向过程中需要保存多少中间数据？</td>
+</tr>
+<tr>
+<td>通信开销</td>
+<td>不同 GPU、节点和专家之间需要交换多少数据？</td>
+</tr>
+<tr>
+<td>内存带宽</td>
+<td>数据能否及时送到计算单元？</td>
+</tr>
+<tr>
+<td>能源成本</td>
+<td>整个系统需要消耗多少能量？</td>
+</tr>
+</tbody>
+</table>
+<p>这张表提醒我们：</p>
+<p>不能只用参数量或者 FLOPs 衡量一个架构的效率。</p>
+<p>真正的设计目标是，在给定的任务和资源约束下，找到各项资源之间更合理的分配方式。</p>
+<h2 id="section-18">原则五：从寻找最优配置，转向寻找能够复用的设计规律</h2>
+<p>这是架构设计方法论上的一个重要转变。</p>
+<p>假设我们在某个硬件平台上找到了一个优秀的网络。</p>
+<p>但换一个 GPU，最优配置可能发生变化。</p>
+<p>再换一个数据集，原来最好的设计可能不再有效。</p>
+<p>甚至仅仅改变训练预算，也可能让最优的深度、宽度和数据配置发生变化。</p>
+<p>这说明：</p>
+<p><strong>某个实验配置的最优性，不等于它具有普遍适用的设计规律。</strong></p>
+<p>EfficientNet 的复合缩放，研究的是深度、宽度和分辨率如何协调变化。</p>
+<p>Scaling Laws 研究的是模型、数据和计算预算之间的扩展关系。</p>
+<p>μP 研究的是超参数和参数更新规律能否跨宽度迁移。</p>
+<p>RegNet 研究的是如何形成更有规律、更可解释的网络设计空间。</p>
+<p>NSC 则尝试建立从架构规格出发的容量代理指标。</p>
+<p>它们虽然研究对象不同，却共同推动了一个方向：</p>
+<p><strong>与其只记住某个规模下的最佳数字，不如理解数字背后的生成规律。</strong></p>
+<hr/>
+<h2 id="section-19">第三部分：把历史经验变成设计方法——一个统一的架构设计框架</h2>
+<h2 id="section-20">第十章：重新认识神经网络的设计对象——不是一张结构图，而是一组相互作用的变量</h2>
+<p>传统介绍神经网络架构时，往往只关注网络结构。</p>
+<p>例如：</p>
+<ul>
+<li>有多少层；</li>
+<li>每层多少神经元；</li>
+<li>使用多少个注意力头；</li>
+<li>使用什么激活函数；</li>
+<li>是否有残差连接。</li>
+</ul>
+<p>但实际上，一个网络能否训练、能否扩展、能否部署，还取决于其他因素。</p>
+<p>因此，可以把架构设计对象抽象为：</p>
+<div class="math math-block">$$
+\boxed{\mathcal D=\langle G,\Pi,S,\Lambda,B\rangle}
+$$</div>
+<p>这个五元组是一种帮助分析架构设计的概念模型，不应被理解成已经证明五个变量严格正交、完全穷尽所有设计因素的数学体系。</p>
+<h3 id="section-20-1">10.1 G：信息流拓扑（Graph）</h3>
+<p>回答的问题：</p>
+<p><strong>信息究竟如何在网络内部流动？</strong></p>
+<p>它涉及：</p>
+<ul>
+<li>网络深度与宽度；</li>
+<li>层与层之间的连接；</li>
+<li>残差连接；</li>
+<li>注意力连接；</li>
+<li>信息传播路径；</li>
+<li>跨层路由；</li>
+<li>不同模块之间的交互关系。</li>
+</ul>
+<p>例如：</p>
+<p>CNN、RNN、ResNet、Transformer 和 MoE，具有不同的信息流拓扑。</p>
+<p>它们处理信息的方式并不相同。</p>
+<p>从设计角度看，G 主要决定：</p>
+<p>网络允许哪些信息交互，以及信息能够通过什么路径传播。</p>
+<h3 id="section-20-2">10.2 Π：参数化与尺度控制（Parameterization）</h3>
+<p>回答的问题：</p>
+<p><strong>网络中的计算应该以什么数值尺度运行？</strong></p>
+<p>它涉及：</p>
+<ul>
+<li>权重初始化；</li>
+<li>参数化方式；</li>
+<li>残差分支缩放；</li>
+<li>归一化位置；</li>
+<li>参数和激活的尺度；</li>
+<li>与模型规模相关的更新规则。</li>
+</ul>
+<p>为什么它如此重要？</p>
+<p>因为相同的结构，使用不同的初始化和参数化方式，训练效果可能完全不同。</p>
+<p>例如：</p>
+<div class="math math-block">$$
+y=x+F(x)
+$$</div>
+<p>如果残差分支初始输出过大，可能破坏原来的主干信息。</p>
+<p>如果初始输出过小，也可能影响训练初期的有效学习。</p>
+<p>因此，不能只确定网络结构，还必须确定它如何初始化和更新。</p>
+<p>需要说明的是，学习率、优化器等训练配置与参数化存在紧密联系，但在严格的实验分析中，应将优化算法及训练方案作为独立的实验条件进行控制，而不是把所有东西都塞进 Π。</p>
+<h3 id="section-20-3">10.3 S：结构先验（Structural Prior）</h3>
+<p>回答的问题：</p>
+<p><strong>哪些计算应该进行，哪些计算不必进行？</strong></p>
+<p>它涉及：</p>
+<ul>
+<li>局部连接；</li>
+<li>权重共享；</li>
+<li>等变性；</li>
+<li>分组；</li>
+<li>低秩；</li>
+<li>稀疏连接；</li>
+<li>条件激活；</li>
+<li>专家路由。</li>
+</ul>
+<p>例如：</p>
+<p>CNN 通过局部感受野减少不必要的全局连接。</p>
+<p>MoE 通过条件路由，让不同输入只激活部分专家。</p>
+<p>S 主要决定网络预先施加什么样的结构约束。</p>
+<h3 id="section-20-4">10.4 Λ：规模扩展路径（Scaling Path）</h3>
+<p>回答的问题：</p>
+<p><strong>当模型变大时，应该怎样改变网络的各个维度？</strong></p>
+<p>它涉及：</p>
+<ul>
+<li>深度如何增长；</li>
+<li>宽度如何增长；</li>
+<li>注意力头数如何变化；</li>
+<li>FFN 比例如何变化；</li>
+<li>专家数量和激活率如何变化；</li>
+<li>参数化如何随规模调整。</li>
+</ul>
+<p>例如：</p>
+<p>EfficientNet 通过复合缩放调整深度、宽度和分辨率。</p>
+<p>μP 通过参数化设计，研究如何实现超参数的跨宽度迁移。</p>
+<p>2026 年的谱条件研究进一步讨论了宽度和深度联合扩展。</p>
+<p>这里特别需要区分：</p>
+<p><strong>网络内部不同层的宽度配置，与模型整体从小规模扩展到大规模的变化路径，并不是同一回事。</strong></p>
+<p>前者属于具体架构的形状，后者属于扩展规律。</p>
+<h3 id="section-20-5">10.5 B：资源预算（Budget）</h3>
+<p>回答的问题：</p>
+<p><strong>在什么资源条件下设计和运行网络？</strong></p>
+<p>它不是单一的 FLOPs 指标，而是一个资源向量：</p>
+<div class="math math-block">$$
+B=\begin{pmatrix}
+C_{\text{train}}\\
+T_{\text{train}}\\
+M_{\text{peak}}\\
+BW_{\text{memory}}\\
+C_{\text{communication}}\\
+E_{\text{energy}}\\
+C_{\text{inference}}
+\end{pmatrix}
+$$</div>
+<p>分别对应：</p>
+<ul>
+<li>训练计算量；</li>
+<li>训练墙钟时间；</li>
+<li>峰值内存占用；</li>
+<li>内存带宽需求；</li>
+<li>通信成本；</li>
+<li>能耗；</li>
+<li>推理成本。</li>
+</ul>
+<p>它们之间存在联系，但不能随意相互替代。</p>
+<p>例如，某种架构 FLOPs 更低，并不意味着实际推理延迟更低。</p>
+<p>因为它可能具有较差的内存访问模式，或者需要更多跨设备通信。</p>
+<h3 id="section-20-6">10.6 适用域与目标函数：五元组之外还有什么？</h3>
+<p>五元组描述的是架构设计者可以调整的主要维度。</p>
+<p>但还必须明确设计所处的环境。</p>
+<p>可以定义：</p>
+<div class="math math-block">$$
+\Omega=\langle D,T,L,O,H,R\rangle
+$$</div>
+<p>其中：</p>
+<ul>
+<li><span class="math">\(D\)</span>：数据分布及规模；</li>
+<li><span class="math">\(T\)</span>：目标任务；</li>
+<li><span class="math">\(L\)</span>：损失函数；</li>
+<li><span class="math">\(O\)</span>：优化算法与训练方案；</li>
+<li><span class="math">\(H\)</span>：硬件平台；</li>
+<li><span class="math">\(R\)</span>：部署与推理环境。</li>
+</ul>
+<p>还必须明确最终优化目标：</p>
+<div class="math math-block">$$
+J=\langle Q,\text{Latency},\text{Memory},\text{Energy},\text{Robustness},\text{Cost}\rangle
+$$</div>
+<p>这里的 <span class="math">\(Q\)</span> 表示任务性能。</p>
+<p>为什么必须明确这些条件？</p>
+<p>因为同一个网络，在不同数据集、不同硬件和不同应用目标下，可能对应完全不同的最优设计。</p>
+<p>例如：</p>
+<p>一个用于数据中心大规模预训练的模型，与一个用于手机本地推理的模型，显然不应该简单追求相同的架构配置。</p>
+<p>至此，我们得到：</p>
+<div class="math math-block">$$
+\boxed{\text{架构设计}=\text{五类可控设计变量}+\text{明确的适用域}+\text{多维度目标}}
+$$</div>
+<p>它不是神经网络的完整数学模型，而是一张用于组织设计问题的地图。</p>
+<hr/>
+<h2 id="section-21">第十一章：架构设计的七步闭环——先诊断，再动手</h2>
+<p>有了五元组，接下来最重要的问题就是：</p>
+<p>怎样使用这套框架？</p>
+<p>我建议把整个过程组织成七个步骤。</p>
+<h3 id="section-21-1">第一步：明确任务、应用环境和资源预算</h3>
+<p>不要一开始就问：</p>
+<p>模型应该有多少层？</p>
+<p>先明确：</p>
+<ul>
+<li>要解决什么任务？</li>
+<li>使用什么数据？</li>
+<li>数据规模和质量如何？</li>
+<li>训练预算有多大？</li>
+<li>使用什么硬件？</li>
+<li>模型部署在哪里？</li>
+<li>推理时需要处理多少 token？</li>
+<li>最重要的是性能、延迟、能耗还是成本？</li>
+</ul>
+<p>这些条件决定架构设计的边界。</p>
+<p>例如：</p>
+<p>研究一个用于移动设备本地推理的模型，和研究一个用于数据中心大规模预训练的模型，不能采用完全相同的资源权重。</p>
+<h3 id="section-21-2">第二步：诊断真正的瓶颈</h3>
+<p>这是整套框架中最重要的一步。</p>
+<p>不要根据直觉决定应该加深、加宽或者引入新的模块。</p>
+<p>应该先通过实验确定当前真正卡在哪里。</p>
+<p>可以采用以下诊断思路：</p>
+<table>
+<thead>
+<tr>
+<th>观察到的问题</th>
+<th>可测量的现象</th>
+<th>优先检查的变量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>网络训练困难</td>
+<td>梯度范数异常、激活尺度漂移、训练不稳定</td>
+<td>Π</td>
+</tr>
+<tr>
+<td>增加层数反而变差</td>
+<td>训练误差上升、优化明显困难</td>
+<td>G、Π</td>
+</tr>
+<tr>
+<td>数据不足、过拟合明显</td>
+<td>训练集与测试集差距大、样本效率低</td>
+<td>S</td>
+</tr>
+<tr>
+<td>模型变大后效果不理想</td>
+<td>性能收益与成本不成比例</td>
+<td>Λ、Π</td>
+</tr>
+<tr>
+<td>推理速度不理想</td>
+<td>带宽利用率低、访存量大、通信时间长</td>
+<td>B、G、S</td>
+</tr>
+<tr>
+<td>专家使用不均衡</td>
+<td>路由分布偏斜、负载差异明显</td>
+<td>G、S</td>
+</tr>
+<tr>
+<td>小模型经验无法迁移</td>
+<td>超参数和训练动力学随规模明显变化</td>
+<td>Π、Λ</td>
+</tr>
+</tbody>
+</table>
+<p>例如，一个 Transformer 训练速度很慢。</p>
+<p>这时候不能直接认为注意力计算量过大。</p>
+<p>应该通过 profiler 和硬件性能分析确定：</p>
+<ul>
+<li>GPU 计算单元是否已经饱和？</li>
+<li>内存带宽是否已经饱和？</li>
+<li>是否发生了大量 HBM 读写？</li>
+<li>是否存在通信等待？</li>
+<li>是否因为显存不足导致频繁重计算？</li>
+</ul>
+<p>如果真正的瓶颈是内存访问，那么单纯减少理论 FLOPs 未必有效。</p>
+<p>FlashAttention 就是一个非常好的例子。</p>
+<p>它告诉我们：</p>
+<p><strong>先知道机器为什么慢，再决定怎么优化。</strong></p>
+<h3 id="section-21-3">第三步：根据瓶颈选择设计机制</h3>
+<p>诊断完成之后，才选择对应的设计方案。</p>
+<p>可以建立一个机制索引。</p>
+<table>
+<thead>
+<tr>
+<th>设计机制</th>
+<th>主要作用</th>
+<th>典型技术</th>
+<th>需要注意的副作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>恒等与加法通路</td>
+<td>改善深层信息传播与优化</td>
+<td>LSTM、ResNet、Highway</td>
+<td>残差累积和尺度失衡</td>
+</tr>
+<tr>
+<td>尺度控制</td>
+<td>稳定激活、梯度与更新</td>
+<td>Xavier、He、LayerNorm、Fixup、μP</td>
+<td>依赖结构与训练条件</td>
+</tr>
+<tr>
+<td>局部与共享</td>
+<td>利用数据的先验结构</td>
+<td>CNN、卷积共享</td>
+<td>全局交互不足</td>
+</tr>
+<tr>
+<td>分组与分解</td>
+<td>降低密集连接成本</td>
+<td>Group Conv、Bottleneck、Depthwise</td>
+<td>信息交互受限</td>
+</tr>
+<tr>
+<td>全局交互</td>
+<td>建立远距离依赖</td>
+<td>Self-Attention</td>
+<td>序列长度二次成本</td>
+</tr>
+<tr>
+<td>IO 感知</td>
+<td>降低数据搬运成本</td>
+<td>FlashAttention</td>
+<td>硬件和算子实现要求</td>
+</tr>
+<tr>
+<td>条件计算</td>
+<td>解耦总容量与激活计算</td>
+<td>MoE</td>
+<td>通信、负载和路由稳定性</td>
+</tr>
+<tr>
+<td>规模参数化</td>
+<td>改善跨尺度迁移</td>
+<td>μP</td>
+<td>适用条件和联合缩放限制</td>
+</tr>
+<tr>
+<td>设计空间约束</td>
+<td>降低盲目搜索</td>
+<td>RegNet、NSC</td>
+<td>代理指标可能与任务目标不一致</td>
+</tr>
+</tbody>
+</table>
+<p>这里的关键不是机械地从表格中选一个技术。</p>
+<p>实际架构往往需要多个机制共同作用。</p>
+<p>例如：</p>
+<p>一个超深 Transformer，可能同时需要：</p>
+<ul>
+<li>残差通路；</li>
+<li>合适的归一化；</li>
+<li>残差尺度控制；</li>
+<li>合理的初始化；</li>
+<li>适合目标规模的参数化方案。</li>
+</ul>
+<h3 id="section-21-4">第四步：遵守合理的设计顺序</h3>
+<p>虽然真实工程中不同变量可能需要反复联合调整，但仍然可以建立一个优先级。</p>
+<p>我建议采用：</p>
+<div class="math math-block">$$
+\boxed{\text{可训练性}\rightarrow\text{结构先验}\rightarrow\text{容量配置}\rightarrow\text{系统效率}}
+$$</div>
+<p>为什么？</p>
+<p><strong>第一，先保证网络能够训练。</strong></p>
+<p>一个结构再漂亮，如果梯度传播和优化过程不稳定，就没有意义。</p>
+<p><strong>第二，再考虑信息交互和结构先验。</strong></p>
+<p>确定网络可以正常工作后，再研究怎样减少不必要的连接，怎样引入更合适的结构。</p>
+<p><strong>第三，再分配模型容量。</strong></p>
+<p>确定需要多少深度、宽度、专家和计算资源。</p>
+<p><strong>第四，最后针对目标硬件优化实现。</strong></p>
+<p>包括数据布局、算子融合、内存访问、并行策略和通信方式。</p>
+<p>这不是说系统效率必须等到架构最后确定才考虑。</p>
+<p>相反，硬件约束应该从第一步就进入设计预算。</p>
+<p>这里说的顺序，是指架构设计问题的逻辑优先级，而不是严格要求所有工作必须串行完成。</p>
+<h3 id="section-21-5">第五步：设计规模扩展路径，而不是只优化一个点</h3>
+<p>假设我们找到了一个 1B 参数模型的最佳配置。</p>
+<p>如果目标是训练 100B 模型，就必须考虑：</p>
+<ul>
+<li>深度怎样变化？</li>
+<li>宽度怎样变化？</li>
+<li>初始化怎样调整？</li>
+<li>学习率怎样迁移？</li>
+<li>残差尺度怎样变化？</li>
+<li>专家数量怎样增加？</li>
+<li>通信成本怎样控制？</li>
+</ul>
+<p>不能简单地把小模型的所有参数原封不动地复制到大模型。</p>
+<p>这里需要使用 Scaling Laws、μP 等理论和经验方法。</p>
+<p>核心目标是：</p>
+<p><strong>让模型规模变化时，尽可能保持有价值的训练和优化规律。</strong></p>
+<h3 id="section-21-6">第六步：用分布和多目标评价，而不是只看一个最优模型</h3>
+<p>假设你设计了两个架构空间：</p>
+<ul>
+<li>空间 A 可以生成 100 个模型；</li>
+<li>空间 B 也可以生成 100 个模型。</li>
+</ul>
+<p>最后，空间 A 找到了一个准确率最高的模型，而空间 B 找到了 20 个表现都很好的模型。</p>
+<p>哪个空间更值得研究？</p>
+<p>不一定是 A。</p>
+<p>因为 A 可能只是偶然找到一个特殊配置，而 B 可能具有更稳定、更容易复用的设计规律。</p>
+<p>因此，应该同时评价：</p>
+<ul>
+<li>最佳模型性能；</li>
+<li>模型群体的性能分布；</li>
+<li>不同计算预算下的表现；</li>
+<li>多目标帕累托前沿；</li>
+<li>不同硬件和数据上的稳定性。</li>
+</ul>
+<p>可以用 EDF 评价整个模型群体，也可以用 IsoFLOP、IsoLatency 等固定预算条件下的实验曲线，研究不同资源配置的收益。</p>
+<p>这里需要注意：</p>
+<p>EDF 不是所有设计空间评价问题的万能答案。它依赖模型采样方式、训练设置和评价任务。</p>
+<p>同样，代理指标也需要通过真实训练和下游任务进行校准。</p>
+<h3 id="section-21-7">第七步：预测下一个瓶颈，回到第二步</h3>
+<p>这是整个框架最值得保留的思想。</p>
+<p>每一次架构优化，都应该同时回答两个问题：</p>
+<ol>
+<li>这次改动解除了什么约束？</li>
+<li>它可能引入什么新的约束？</li>
+</ol>
+<p>例如：</p>
+<p>引入 MoE 之后，模型总容量可以增大，但专家之间的通信和负载均衡问题可能变得突出。</p>
+<p>使用局部注意力之后，计算成本可能下降，但远距离信息交互可能不足。</p>
+<p>增加残差通路之后，优化可能更加容易，但残差分支的尺度和累积行为仍然需要控制。</p>
+<p>于是，新的瓶颈又出现了。</p>
+<p>整个架构设计过程变成：</p>
+<div class="math math-block">$$
+\boxed{\text{明确目标}\rightarrow\text{诊断瓶颈}\rightarrow\text{选择机制}\rightarrow\text{设计结构}\rightarrow\text{规划扩展}\rightarrow\text{多维验证}\rightarrow\text{发现新瓶颈}}
+$$</div>
+<p>这就是一个持续迭代的设计闭环。</p>
+<hr/>
+<h2 id="section-22">第四部分：把设计框架用起来——一个面向未来的架构设计案例</h2>
+<h2 id="section-23">第十二章：假设我们要设计一套支持 128K 上下文的模型，同时兼顾 100B 级预训练和端侧部署</h2>
+<p>现在，我们不再只是讨论抽象的理论。</p>
+<p>假设有一个真实的研发项目：</p>
+<p>希望模型支持 128K 上下文，能够进行大规模预训练，同时又能够把相关能力部署到移动终端和边缘设备。</p>
+<p>这是一个很有代表性的需求。</p>
+<p>因为它同时涉及：</p>
+<ul>
+<li>长上下文建模；</li>
+<li>大规模模型容量；</li>
+<li>高效训练；</li>
+<li>低成本推理；</li>
+<li>不同硬件环境；</li>
+<li>模型压缩和部署。</li>
+</ul>
+<p>首先必须指出：</p>
+<p><strong>100B 参数模型与普通端侧设备的资源条件差异巨大，不能想当然地认为同一个 100B 模型经过简单优化，就能在手机上高效运行。</strong></p>
+<p>更合理的目标，是设计一个可扩展的架构体系：</p>
+<p>以大模型作为教师模型或数据中心模型，同时通过蒸馏、量化、剪枝等方法，构建适合端侧部署的不同规模模型。</p>
+<p>这样才符合实际工程逻辑。</p>
+<p>下面按照七步闭环展开。</p>
+<h3 id="section-23-1">第一步：明确应用目标</h3>
+<p>首先定义两个主要应用环境。</p>
+<p><strong>数据中心环境：</strong></p>
+<ul>
+<li>预训练目标规模约 100B 参数；</li>
+<li>支持 128K 上下文；</li>
+<li>允许使用多 GPU、多节点；</li>
+<li>需要控制训练成本和通信成本；</li>
+<li>可能采用稀疏专家结构。</li>
+</ul>
+<p><strong>端侧环境：</strong></p>
+<ul>
+<li>设备内存有限；</li>
+<li>计算能力有限；</li>
+<li>通信可能不稳定；</li>
+<li>对推理延迟和能耗敏感；</li>
+<li>可能需要模型量化或蒸馏。</li>
+</ul>
+<p>这意味着：</p>
+<p>不能用单一的 FLOPs 指标评价两个环境。</p>
+<p>它们需要各自的资源预算和多目标评价体系。</p>
+<h3 id="section-23-2">第二步：识别主要瓶颈</h3>
+<p>对于 128K 上下文，需要重点研究：</p>
+<ol>
+<li>注意力计算开销；</li>
+<li>KV Cache 的存储规模；</li>
+<li>内存带宽；</li>
+<li>长上下文检索能力；</li>
+<li>长序列训练时的激活存储。</li>
+</ol>
+<p>例如，标准多头注意力在自回归推理时，需要保存历史 token 的 Key 和 Value。</p>
+<p>简化地估计，KV Cache 的存储量与以下因素成正比：</p>
+<div class="math math-block">$$
+M_{\text{KV}}\propto 2LBT H_{\text{KV}}d_hs
+$$</div>
+<p>其中：</p>
+<ul>
+<li><span class="math">\(L\)</span>：Transformer 层数；</li>
+<li><span class="math">\(B\)</span>：批次大小；</li>
+<li><span class="math">\(T\)</span>：上下文长度；</li>
+<li><span class="math">\(H_{\text{KV}}\)</span>：KV 头数；</li>
+<li><span class="math">\(d_h\)</span>：每个头的维度；</li>
+<li><span class="math">\(s\)</span>：每个元素的存储字节数；</li>
+<li>前面的 2 表示 Key 和 Value 两部分。</li>
+</ul>
+<p>因此，128K 上下文不仅仅是注意力计算问题，也可能是显存容量和内存带宽问题。</p>
+<p>对于专家模型，还需要研究 All-to-All 通信是否成为主要瓶颈。</p>
+<h3 id="section-23-3">第三步：选择候选架构机制</h3>
+<p>这里不能直接宣布某个架构一定最好，而应该提出候选方案。</p>
+<p><strong>方案 A：稠密 Transformer。</strong></p>
+<p>优势是结构成熟，训练和推理工具链完善。</p>
+<p>重点优化注意力计算、KV Cache 和显存管理。</p>
+<p><strong>方案 B：Transformer + MoE。</strong></p>
+<p>增加总模型容量，同时控制每个 token 的激活专家数量。</p>
+<p>需要重点评估专家路由、负载均衡和跨节点通信。</p>
+<p><strong>方案 C：Transformer + 状态空间混合架构。</strong></p>
+<p>在不同层中组合注意力模块和选择性状态空间模块。</p>
+<p>目标是探索长序列处理效率与内容交互能力之间的平衡。</p>
+<p><strong>方案 D：局部注意力 + 全局注意力。</strong></p>
+<p>通过不同范围的信息交互，减少部分全局注意力计算。</p>
+<p>但需要验证远距离信息检索能力是否受到影响。</p>
+<p>这些方案分别利用了不同的历史设计机制。</p>
+<p>它们之间并不存在可以仅凭历史经验直接得出的唯一最佳答案。</p>
+<h3 id="section-23-4">第四步：先保证架构具有稳定的训练动力学</h3>
+<p>对于 100B 级模型，需要重点考虑：</p>
+<ul>
+<li>Pre-LN 或其他归一化方案；</li>
+<li>残差尺度；</li>
+<li>初始化；</li>
+<li>深度与宽度的联合参数化；</li>
+<li>学习率迁移；</li>
+<li>专家路由稳定性。</li>
+</ul>
+<p>特别是深度扩展时，不能只增加层数，而不考虑参数更新尺度。</p>
+<p>2026 年的谱条件研究为宽度与深度联合扩展提供了进一步的分析工具，但仍需要结合具体模型结构和训练配置验证。</p>
+<h3 id="section-23-5">第五步：制定不同尺度的扩展路线</h3>
+<p>可以先训练若干小规模模型。</p>
+<p>例如：</p>
+<div class="math math-block">$$
+100M\rightarrow1B\rightarrow10B\rightarrow100B
+$$</div>
+<p>但这个序列仅仅是一个可能的实验规划，不代表所有阶段都应该按照固定比例扩展。</p>
+<p>每次扩展都需要验证：</p>
+<ul>
+<li>参数化是否仍然稳定？</li>
+<li>激活和梯度是否保持合理尺度？</li>
+<li>学习率是否可以迁移？</li>
+<li>计算量是否符合预算？</li>
+<li>模型性能是否按照预期提升？</li>
+<li>不同结构的相对优劣是否发生变化？</li>
+</ul>
+<p>如果小模型中的某项架构设计在大模型上出现性能退化，就应该检查其背后的机制是否能够跨尺度成立。</p>
+<h3 id="section-23-6">第六步：分别建立数据中心与端侧的评价体系</h3>
+<p>不能只用一个准确率指标比较所有方案。</p>
+<p>数据中心模型需要重点评价：</p>
+<ul>
+<li>预训练效果；</li>
+<li>训练成本；</li>
+<li>推理吞吐；</li>
+<li>每 token 延迟；</li>
+<li>KV Cache 占用；</li>
+<li>专家通信开销；</li>
+<li>能耗。</li>
+</ul>
+<p>端侧模型则需要重点评价：</p>
+<ul>
+<li>模型大小；</li>
+<li>峰值内存；</li>
+<li>实际推理延迟；</li>
+<li>电量消耗；</li>
+<li>长上下文能力；</li>
+<li>压缩后性能损失。</li>
+</ul>
+<p>最后绘制多目标帕累托前沿。</p>
+<p>例如：</p>
+<p>一个模型可能精度更高，但延迟更大。</p>
+<p>另一个模型精度略低，但延迟和能耗明显更好。</p>
+<p>如果应用场景更加重视实时响应，第二个模型可能更合适。</p>
+<h3 id="section-23-7">第七步：预测下一代瓶颈</h3>
+<p>假设经过实验，MoE 架构成功提升了模型容量。</p>
+<p>那么下一个问题可能就是：</p>
+<ul>
+<li>专家分配是否均衡？</li>
+<li>All-to-All 通信是否过重？</li>
+<li>专家是否真正学到了不同的能力？</li>
+<li>端侧模型是否能够继承大模型的能力？</li>
+<li>不同专家之间能否进一步压缩或共享？</li>
+</ul>
+<p>于是，研究进入下一轮。</p>
+<p>再次诊断，再次设计。</p>
+<h3 id="section-23-8">这个案例真正说明了什么？</h3>
+<p>整个过程并没有直接给出一个神奇的架构公式，也没有告诉我们：</p>
+<p>「100B 模型应该使用 64 层、8192 维和 64 个专家。」</p>
+<p>这是因为这些数字必须由实际任务、数据、训练设置和硬件共同决定。</p>
+<p>但它提供了更重要的东西：</p>
+<p><strong>在决定这些数字之前，应该先问什么问题，测量什么指标，选择什么机制，以及如何判断设计是否有效。</strong></p>
+<p>这才是架构设计方法论的真正价值。</p>
+<hr/>
+<h2 id="section-24">第五部分：统一框架的能力边界——我们究竟掌握了什么，还缺少什么？</h2>
+<h2 id="section-25">第十三章：五类设计原则并不能解释所有问题</h2>
+<p>到这里，我们已经从历史中抽象出五类重要原则：</p>
+<ol>
+<li>保持有效的信息通路；</li>
+<li>保持信号与更新的尺度稳定；</li>
+<li>利用结构先验减少无效自由度；</li>
+<li>将原本绑定的资源解耦；</li>
+<li>从寻找最优配置转向寻找可复用的设计规律。</li>
+</ol>
+<p>这五类原则可以帮助我们理解大量经典架构创新。</p>
+<p>但必须明确：</p>
+<p><strong>它们不是深度神经网络架构设计的全部规律，也不是一个能够直接计算最优架构的完整理论。</strong></p>
+<p>例如，下面这些问题仍然没有被它们彻底解决。</p>
+<h3 id="section-25-1">13.1 如何判断一种结构先验是否真正符合数据规律？</h3>
+<p>CNN 的局部性先验对图像具有很大价值。</p>
+<p>但其他任务可能需要完全不同的信息交互方式。</p>
+<p>能否从数据本身自动推断最合理的结构先验？</p>
+<p>这仍然是一个重要研究方向。</p>
+<h3 id="section-25-2">13.2 如何判断网络中真正有效的计算容量？</h3>
+<p>参数量并不等于有效容量。</p>
+<p>FLOPs 也不等于模型真正利用了多少信息。</p>
+<p>两个参数量相同的网络，可能具有完全不同的表示能力、训练动力学和实际性能。</p>
+<p>NSC 等研究正在探索更好的架构容量评价指标，但代理指标与真实任务能力之间的关系仍需持续检验。</p>
+<h3 id="section-25-3">13.3 如何建立跨深度、宽度、数据和硬件的统一扩展理论？</h3>
+<p>μP 及其扩展为跨尺度训练提供了重要方法。</p>
+<p>但宽度、深度、稀疏度、专家数量、上下文长度和硬件变化同时发生时，是否仍能建立稳定的统一理论？</p>
+<p>目前还不能认为这个问题已经解决。</p>
+<h3 id="section-25-4">13.4 如何真正做到架构设计的自动化？</h3>
+<p>NAS 能够自动搜索架构。</p>
+<p>RegNet 能够研究设计空间。</p>
+<p>NSC 尝试使用代理指标降低架构评价成本。</p>
+<p>但是，真正有价值的自动架构设计系统，还需要具备：</p>
+<ul>
+<li>发现当前瓶颈的能力；</li>
+<li>理解结构和训练机制之间关系的能力；</li>
+<li>自动提出设计假设的能力；</li>
+<li>自动验证假设的能力；</li>
+<li>根据实验结果更新设计规则的能力。</li>
+</ul>
+<p>这不仅仅是搜索参数。</p>
+<p>它实际上涉及自动科学发现和自动工程设计。</p>
+<h2 id="section-26">第十四章：怎样判断一套架构设计理论是否真的有用？</h2>
+<p>这是统一框架必须回答的问题。</p>
+<p>不能因为提出了五元组、五类原则和七步流程，就认为理论已经成立。</p>
+<p>我们需要让它接受实验检验。</p>
+<p>我认为可以采用以下几个可证伪的评价方向。</p>
+<h3 id="section-26-1">14.1 是否提高了架构迭代效率？</h3>
+<p>在相同的训练计算预算下：</p>
+<p>采用诊断驱动的设计方法，能否比随机搜索、网格搜索或常规 NAS 更快找到满足要求的架构？</p>
+<p>如果不能，框架的实际价值就需要重新评估。</p>
+<h3 id="section-26-2">14.2 是否提高了实验结果的可解释性？</h3>
+<p>一个架构表现更好时，能否判断究竟是哪种设计机制发挥了作用？</p>
+<p>例如：</p>
+<ul>
+<li>是残差尺度改变了？</li>
+<li>是结构先验更适合数据？</li>
+<li>是通信开销下降了？</li>
+<li>还是参数化方案改善了训练动力学？</li>
+</ul>
+<p>如果无法区分这些因素，实验结论就很难复用。</p>
+<h3 id="section-26-3">14.3 是否提高了跨尺度迁移能力？</h3>
+<p>在小模型上得到的设计规律，是否能够迁移到更大模型？</p>
+<p>迁移时是否仍然保持相同的趋势？</p>
+<p>如果每次扩大模型都必须重新调整全部设计，那么原有设计规则的可迁移性就有限。</p>
+<h3 id="section-26-4">14.4 是否改善了多目标性能？</h3>
+<p>不能只比较模型准确率或训练损失。</p>
+<p>还应该同时比较：</p>
+<ul>
+<li>推理延迟；</li>
+<li>峰值显存；</li>
+<li>训练成本；</li>
+<li>能耗；</li>
+<li>通信成本；</li>
+<li>鲁棒性；</li>
+<li>部署成本。</li>
+</ul>
+<p>真正有效的设计方法，应该能够帮助研究者找到更合理的多目标权衡。</p>
+<h3 id="section-26-5">14.5 是否能够预判下一轮瓶颈？</h3>
+<p>这是我认为最有价值的评价方向。</p>
+<p>例如，采用 MoE 之后，能否提前预测通信成本会成为重要瓶颈？</p>
+<p>采用稀疏注意力之后，能否提前预测某些长距离依赖能力可能下降？</p>
+<p>如果框架只能解释已经发生的事情，却不能帮助预测接下来会遇到什么问题，它的设计指导能力就比较有限。</p>
+<hr/>
+<h2 id="section-27">第六部分：未来的神经网络架构设计，可能走向哪里？</h2>
+<h2 id="section-28">第十五章：从架构创新到架构科学</h2>
+<p>回顾这六十多年的发展，可以发现一个值得重视的变化。</p>
+<p>早期研究者更多是在探索：</p>
+<p>神经网络能不能学习？</p>
+<p>怎样增加表达能力？</p>
+<p>怎样通过反向传播训练网络？</p>
+<p>后来研究者开始深入研究：</p>
+<ul>
+<li>为什么梯度消失？</li>
+<li>为什么网络越深越难训练？</li>
+<li>怎样控制信号传播？</li>
+<li>怎样建立更稳定的信息路径？</li>
+<li>怎样降低计算成本？</li>
+</ul>
+<p>再后来，研究开始转向：</p>
+<ul>
+<li>怎样扩展模型？</li>
+<li>怎样让超参数跨尺度迁移？</li>
+<li>怎样解耦总容量与激活计算？</li>
+<li>怎样寻找有规律的设计空间？</li>
+<li>怎样评价架构本身？</li>
+</ul>
+<p>这说明架构研究正在逐步从具体结构的发明，走向更加系统的设计理论。</p>
+<p>未来至少有五个值得关注的方向。</p>
+<h3 id="section-28-1">15.1 从静态连接走向动态信息流</h3>
+<p>传统网络通常在训练前就确定大部分连接关系。</p>
+<p>但 MoE 已经展示了一种新的可能：</p>
+<p>不同输入可以选择不同的计算路径。</p>
+<p>未来，网络可能根据输入、任务、资源状态和计算需求，动态决定：</p>
+<ul>
+<li>激活哪些模块；</li>
+<li>调用哪些专家；</li>
+<li>使用哪些记忆；</li>
+<li>进行多少计算；</li>
+<li>在哪里进行信息交换。</li>
+</ul>
+<p>这意味着架构不再只是一个静态的计算图，而可能变成一种具有动态调度能力的计算系统。</p>
+<h3 id="section-28-2">15.2 从单一模型走向异构模块协同</h3>
+<p>Transformer、CNN、SSM、MoE 等结构各有优势。</p>
+<p>未来可能出现更多不同计算模块的组合：</p>
+<ul>
+<li>注意力负责内容关联；</li>
+<li>状态空间模块负责高效序列处理；</li>
+<li>卷积模块负责局部结构提取；</li>
+<li>专家模块负责条件计算；</li>
+<li>外部记忆负责长期信息存储。</li>
+</ul>
+<p>这些模块不必完全统一。</p>
+<p>真正重要的是，能否让它们形成有效协作。</p>
+<p>这意味着架构设计的重点可能逐渐从寻找一种万能结构，转向寻找不同计算机制之间合理的组合方式。</p>
+<h3 id="section-28-3">15.3 从固定精度和固定计算走向弹性资源分配</h3>
+<p>未来模型可能根据任务难度和设备状态动态分配计算资源。</p>
+<p>例如：</p>
+<p>简单问题使用较少计算。</p>
+<p>复杂问题使用更多专家或更长推理过程。</p>
+<p>内存不足时采用压缩记忆。</p>
+<p>网络带宽不足时减少跨设备通信。</p>
+<p>这会让架构设计与操作系统、编译器、调度系统和硬件协同优化更加紧密。</p>
+<h3 id="section-28-4">15.4 从训练一次模型走向整个生命周期优化</h3>
+<p>过去，模型研究经常将训练效果作为主要评价指标。</p>
+<p>但一个模型可能只需要训练一次，却会被部署使用数十亿次。</p>
+<p>未来需要更加系统地考虑：</p>
+<div class="math math-block">$$
+\text{训练成本}+\text{推理成本}+\text{存储成本}+\text{通信成本}+\text{能源成本}
+$$</div>
+<p>不同应用场景会产生不同的最优设计。</p>
+<p>例如：</p>
+<p>数据中心可以接受更复杂的专家路由，但手机未必可以。</p>
+<p>在线服务可能更重视首 token 延迟，而离线批处理可能更重视总吞吐量。</p>
+<p>因此，未来的架构设计可能更加依赖完整的生命周期成本模型。</p>
+<h3 id="section-28-5">15.5 从人工经验设计走向 AI 自动设计 AI</h3>
+<p>这是一个更加值得期待的方向。</p>
+<p>今天的研究者需要阅读论文、分析架构、提出假设、编写代码、运行实验、比较结果。</p>
+<p>未来，AI 系统可能逐步承担其中更多工作。</p>
+<p>例如：</p>
+<ol>
+<li>自动分析模型训练日志；</li>
+<li>自动识别梯度、激活和内存瓶颈；</li>
+<li>根据历史机制库提出架构改进方案；</li>
+<li>自动生成实验代码；</li>
+<li>自动进行多规模验证；</li>
+<li>自动分析实验结果；</li>
+<li>更新设计规则并提出下一轮假设。</li>
+</ol>
+<p>这样，架构设计就不只是自动搜索参数，而是形成一个能够持续积累知识的工程闭环。</p>
+<p>但这也提出了更深的问题：</p>
+<p>自动生成的架构，是否真的符合预期的机制解释？</p>
+<p>自动搜索出来的性能提升，能否在不同数据和硬件上复现？</p>
+<p>自动总结出的设计规律，是否具有跨尺度的普遍性？</p>
+<p>这些仍然需要科学验证。</p>
+<hr/>
+<h2 id="section-29">结语：真正重要的，不是记住多少架构，而是学会怎样设计架构</h2>
+<p>回顾六十多年的发展，我们会发现一个十分有意思的现象。</p>
+<p>很多看起来完全不同的技术，实际上都在重复解决几类根本问题。</p>
+<p>感知机和多层网络解决表达能力问题。</p>
+<p>反向传播解决多层网络如何学习的问题。</p>
+<p>LSTM、ResNet 和 Pre-LN 从不同角度改善信息传播与优化过程。</p>
+<p>Xavier、He、归一化和 μP 解决不同尺度下的信号与参数更新问题。</p>
+<p>CNN、分组卷积、低秩分解、注意力和 MoE，则不断改变网络内部的信息交互和计算方式。</p>
+<p>EfficientNet、Scaling Laws、RegNet 和 NSC，进一步推动研究者从寻找单个模型，转向研究可复用的设计规律。</p>
+<p>这些技术并不是一条没有分叉的直线。</p>
+<p>它们来自不同的问题、不同的任务和不同的研究背景。</p>
+<p>但是，从更高层次观察，它们确实反复体现了一些相似的设计思想：</p>
+<ul>
+<li>为信息保留有效通路；</li>
+<li>让信号和参数更新保持稳定；</li>
+<li>利用合适的结构先验减少无效自由度；</li>
+<li>将不合理绑定的容量、计算和存储拆开；</li>
+<li>从单点最优转向可解释、可迁移的设计空间。</li>
+</ul>
+<p>这五类原则不能代替实验，也不能直接计算出下一代网络的最佳层数、宽度和专家数量。</p>
+<p>它们真正的价值，在于帮助我们更有条理地提出问题、设计方案和验证假设。</p>
+<p>因此，我认为深度神经网络架构设计最重要的转变，不是从 CNN 走向 Transformer，也不是从稠密模型走向 MoE。</p>
+<p>而是从一种思维方式走向另一种思维方式：</p>
+<p>过去，我们经常问：</p>
+<p><strong>哪一种网络结构表现最好？</strong></p>
+<p>未来，我们应该更多地问：</p>
+<p><strong>当前网络究竟受到什么约束？为什么这种约束会出现？哪些设计机制能够解除它？解除之后又会产生什么新问题？这些设计规律能否迁移到新的任务、规模和硬件环境？</strong></p>
+<p>前一个问题寻找的是一个答案。</p>
+<p>后一个问题寻找的是产生好答案的方法。</p>
+<p>这也正是架构设计从经验探索走向系统科学的关键。</p>
+<p><strong>研究者真正需要掌握的，不只是 ResNet、Transformer 或 MoE 的结构，而是理解这些结构为什么被发明、解决了什么问题、依赖什么条件，以及它们背后的设计思想能否在新的环境中继续发挥作用。</strong></p>
+<p>当我们真正掌握了这些规律，设计下一代神经网络时，就不必再面对一个完全陌生的迷宫。</p>
+<p>我们仍然需要实验，仍然可能失败，也不可能保证每次都能找到最优架构。</p>
+<p>但至少，我们知道应该从哪里开始，应该观察什么，应该改变什么，以及下一次可能会遇到什么问题。</p>
+<p><strong>这就是从「制造更大的神经网络」，走向「理解如何设计更好的神经网络」。</strong></p>
+<hr/>
+<h2 id="section-30">附录一：深度神经网络架构发展的关键历史年表</h2>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>代表性技术或研究</th>
+<th>主要解决的问题</th>
+<th>重要设计思想</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1958</td>
+<td>感知机</td>
+<td>基本模式识别</td>
+<td>加权输入与阈值判断</td>
+</tr>
+<tr>
+<td>1969</td>
+<td>《Perceptrons》</td>
+<td>单层感知机的表达局限</td>
+<td>揭示线性不可分问题</td>
+</tr>
+<tr>
+<td>1986</td>
+<td>反向传播的系统性推广</td>
+<td>多层网络训练</td>
+<td>链式法则与误差反传</td>
+</tr>
+<tr>
+<td>1989</td>
+<td>通用逼近定理相关研究</td>
+<td>网络表达能力</td>
+<td>非线性网络的函数逼近能力</td>
+</tr>
+<tr>
+<td>1989—1998</td>
+<td>LeNet</td>
+<td>图像识别</td>
+<td>局部连接、权重共享</td>
+</tr>
+<tr>
+<td>1991—1994</td>
+<td>梯度消失与长期依赖研究</td>
+<td>长序列训练困难</td>
+<td>分析梯度传播</td>
+</tr>
+<tr>
+<td>1997</td>
+<td>LSTM</td>
+<td>长期记忆与梯度衰减</td>
+<td>恒定误差通路、门控记忆</td>
+</tr>
+<tr>
+<td>2000</td>
+<td>遗忘门扩展</td>
+<td>持续输入下的记忆管理</td>
+<td>自适应清除旧状态</td>
+</tr>
+<tr>
+<td>2010</td>
+<td>Xavier 初始化</td>
+<td>深层网络信号尺度</td>
+<td>方差控制</td>
+</tr>
+<tr>
+<td>2010—2012</td>
+<td>ReLU</td>
+<td>激活函数饱和问题</td>
+<td>非饱和激活</td>
+</tr>
+<tr>
+<td>2012</td>
+<td>AlexNet</td>
+<td>大规模视觉识别</td>
+<td>GPU 计算、深层 CNN</td>
+</tr>
+<tr>
+<td>2015</td>
+<td>He 初始化、BatchNorm</td>
+<td>训练稳定性</td>
+<td>激活适配初始化、归一化</td>
+</tr>
+<tr>
+<td>2015</td>
+<td>Highway Network</td>
+<td>深层信息传播</td>
+<td>门控直通通路</td>
+</tr>
+<tr>
+<td>2015</td>
+<td>ResNet</td>
+<td>深层网络退化</td>
+<td>残差学习、恒等映射</td>
+</tr>
+<tr>
+<td>2016</td>
+<td>LayerNorm</td>
+<td>信号尺度控制</td>
+<td>样本内部归一化</td>
+</tr>
+<tr>
+<td>2017</td>
+<td>ResNeXt</td>
+<td>通道交互成本</td>
+<td>Cardinality、分组变换</td>
+</tr>
+<tr>
+<td>2017</td>
+<td>Transformer</td>
+<td>长距离交互与并行训练</td>
+<td>自注意力、全局信息交互</td>
+</tr>
+<tr>
+<td>2018</td>
+<td>MobileNet、ShuffleNet</td>
+<td>计算效率</td>
+<td>深度可分离与通道分解</td>
+</tr>
+<tr>
+<td>2019</td>
+<td>EfficientNet</td>
+<td>网络规模扩展</td>
+<td>深度、宽度、分辨率复合缩放</td>
+</tr>
+<tr>
+<td>2019</td>
+<td>Fixup</td>
+<td>归一化依赖</td>
+<td>残差分支初始化与尺度控制</td>
+</tr>
+<tr>
+<td>2020</td>
+<td>Pre-LN 理论分析</td>
+<td>Transformer 训练稳定性</td>
+<td>归一化位置设计</td>
+</tr>
+<tr>
+<td>2020</td>
+<td>ViT</td>
+<td>视觉信息建模</td>
+<td>Patch 表示与全局注意力</td>
+</tr>
+<tr>
+<td>2020</td>
+<td>RegNet</td>
+<td>架构设计空间复杂</td>
+<td>从单模型到模型群体</td>
+</tr>
+<tr>
+<td>2021</td>
+<td>μP 及相关迁移研究</td>
+<td>大模型超参数调节成本</td>
+<td>跨宽度参数化</td>
+</tr>
+<tr>
+<td>2021—2022</td>
+<td>Switch Transformer</td>
+<td>模型参数与激活计算成本</td>
+<td>稀疏专家路由</td>
+</tr>
+<tr>
+<td>2022</td>
+<td>Chinchilla</td>
+<td>模型与训练数据分配</td>
+<td>计算最优扩展</td>
+</tr>
+<tr>
+<td>2022</td>
+<td>FlashAttention</td>
+<td>注意力 IO 成本</td>
+<td>IO 感知精确计算</td>
+</tr>
+<tr>
+<td>2023</td>
+<td>Mamba</td>
+<td>长序列计算效率</td>
+<td>选择性状态空间</td>
+</tr>
+<tr>
+<td>2026</td>
+<td>宽度—深度联合 μP 谱条件</td>
+<td>跨宽度和深度扩展</td>
+<td>谱条件与尺度迁移</td>
+</tr>
+<tr>
+<td>2026</td>
+<td>NSC</td>
+<td>架构容量评价与资源分配</td>
+<td>谱容量代理指标、动态规划</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="section-31">附录二：五类架构设计原则与代表技术对照表</h2>
+<table>
+<thead>
+<tr>
+<th>设计原则</th>
+<th>核心问题</th>
+<th>代表技术</th>
+<th>设计变量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>有效信息通路</td>
+<td>信息和梯度如何顺畅传播？</td>
+<td>LSTM、Highway、ResNet、Pre-LN</td>
+<td>G、Π</td>
+</tr>
+<tr>
+<td>信号尺度稳定</td>
+<td>深度、宽度增加后如何保持训练稳定？</td>
+<td>Xavier、He、BN、LN、Fixup、μP</td>
+<td>Π、Λ</td>
+</tr>
+<tr>
+<td>结构先验</td>
+<td>如何减少不必要的交互和自由度？</td>
+<td>CNN、分组卷积、低秩、稀疏注意力、MoE</td>
+<td>G、S</td>
+</tr>
+<tr>
+<td>资源解耦</td>
+<td>如何分别优化参数容量、激活计算和存储？</td>
+<td>MoE、量化、蒸馏、KV Cache 压缩</td>
+<td>S、B</td>
+</tr>
+<tr>
+<td>规律化设计</td>
+<td>如何找到具有迁移能力的设计规则？</td>
+<td>EfficientNet、Scaling Laws、μP、RegNet、NSC</td>
+<td>Λ、B</td>
+</tr>
+</tbody>
+</table>
+<p>注：表中变量归属是为了帮助理解各原则的主要作用，并不意味着五个设计变量之间完全独立。</p>
+<hr/>
+<h2 id="section-32">附录三：新架构设计的十二项检查清单</h2>
+<p>在提出一个新的深度神经网络架构时，可以依次检查以下问题。</p>
+<ol>
+<li><strong>任务是否明确？</strong> 是否清楚定义数据分布、训练目标、部署环境和评价指标？</li>
+<li><strong>资源预算是否明确？</strong> 是否分别考虑计算量、训练时间、峰值显存、内存带宽、通信和能耗？</li>
+<li><strong>信息通路是否合理？</strong> 是否存在过长、过度复杂或容易丢失信息的传播路径？</li>
+<li><strong>深度增加是否容易优化？</strong> 能否通过合理的恒等映射或其他机制保留已有功能？</li>
+<li><strong>信号尺度是否稳定？</strong> 前向激活、反向梯度和参数更新是否随着深度变化而出现失衡？</li>
+<li><strong>参数化是否合理？</strong> 初始化、残差缩放、归一化和优化配置是否相互匹配？</li>
+<li><strong>结构先验是否符合任务？</strong> 局部性、稀疏性、共享和路由机制是否符合真实数据结构？</li>
+<li><strong>是否存在不必要的密集计算？</strong> 能否使用分组、低秩、因子分解或条件计算？</li>
+<li><strong>理论效率是否等于实际效率？</strong> 是否检查了真实硬件上的访存、并行度和通信成本？</li>
+<li><strong>设计能否跨尺度迁移？</strong> 小模型上的结论是否在目标规模下得到验证？</li>
+<li><strong>评价是否足够全面？</strong> 是否同时比较任务性能、延迟、显存、能耗和生命周期成本？</li>
+<li><strong>是否预测了下一轮瓶颈？</strong> 新机制带来的副作用是否已经识别，是否有相应的缓解方案？</li>
+</ol>
+<hr/>
+<h2 id="section-33">附录四：关键参考文献</h2>
+<p>以下文献按照本文的技术发展主线排列，优先列出奠定重要设计思想的原始论文。</p>
+<h2 id="section-34">一、表达能力与反向传播</h2>
+<ol>
+<li>Rosenblatt, F. (1958). <em>The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain</em>.</li>
+<li>Minsky, M. &amp; Papert, S. (1969). <em>Perceptrons: An Introduction to Computational Geometry</em>.</li>
+<li>Rumelhart, D. E., Hinton, G. E. &amp; Williams, R. J. (1986). <a href="https://www.nature.com/articles/323533a0" rel="noopener noreferrer" target="_blank">Learning representations by back-propagating errors</a>. Nature.</li>
+<li>Cybenko, G. (1989). <em>Approximation by Superpositions of a Sigmoidal Function</em>. Mathematics of Control, Signals, and Systems.</li>
+<li>Hornik, K., Stinchcombe, M. &amp; White, H. (1989). <a href="https://doi.org/10.1016/0893-6080(89" rel="noopener noreferrer" target="_blank">Multilayer feedforward networks are universal approximators</a>90020-8). Neural Networks.</li>
+</ol>
+<h2 id="section-35">二、梯度传播与循环网络</h2>
+<ol start="6">
+<li>Hochreiter, S. (1991). <em>Untersuchungen zu dynamischen neuronalen Netzen</em>. Diploma Thesis.</li>
+<li>Bengio, Y., Simard, P. &amp; Frasconi, P. (1994). <a href="https://doi.org/10.1109/72.279181" rel="noopener noreferrer" target="_blank">Learning long-term dependencies with gradient descent is difficult</a>. IEEE Transactions on Neural Networks.</li>
+<li>Hochreiter, S. &amp; Schmidhuber, J. (1997). <a href="https://doi.org/10.1162/neco.1997.9.8.1735" rel="noopener noreferrer" target="_blank">Long Short-Term Memory</a>. Neural Computation.</li>
+<li>Gers, F. A., Schmidhuber, J. &amp; Cummins, F. (2000). <a href="https://doi.org/10.1162/089976600300015015" rel="noopener noreferrer" target="_blank">Learning to Forget: Continual Prediction with LSTM</a>. Neural Computation.</li>
+</ol>
+<h2 id="section-36">三、初始化、激活与归一化</h2>
+<ol start="10">
+<li>Glorot, X. &amp; Bengio, Y. (2010). <a href="https://proceedings.mlr.press/v9/glorot10a.html" rel="noopener noreferrer" target="_blank">Understanding the Difficulty of Training Deep Feedforward Neural Networks</a>. AISTATS.</li>
+<li>Nair, V. &amp; Hinton, G. E. (2010). <em>Rectified Linear Units Improve Restricted Boltzmann Machines</em>. ICML.</li>
+<li>He, K. et al. (2015). <a href="https://openaccess.thecvf.com/content_iccv_2015/html/He_Delving_Deep_into_ICCV_2015_paper.html" rel="noopener noreferrer" target="_blank">Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification</a>. ICCV.</li>
+<li>Ioffe, S. &amp; Szegedy, C. (2015). <a href="https://proceedings.mlr.press/v37/ioffe15.html" rel="noopener noreferrer" target="_blank">Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift</a>. ICML.</li>
+<li>Ba, J. L., Kiros, J. R. &amp; Hinton, G. E. (2016). <a href="https://arxiv.org/abs/1607.06450" rel="noopener noreferrer" target="_blank">Layer Normalization</a>.</li>
+</ol>
+<h2 id="section-37">四、残差网络与深度优化</h2>
+<ol start="15">
+<li>Srivastava, R. K., Greff, K. &amp; Schmidhuber, J. (2015). <a href="https://papers.nips.cc/paper/2015/hash/215a71a12769b056c3c32e7299f1c5ed-Abstract.html" rel="noopener noreferrer" target="_blank">Training Very Deep Networks</a>. NeurIPS.</li>
+<li>He, K. et al. (2015). <a href="https://arxiv.org/abs/1512.03385" rel="noopener noreferrer" target="_blank">Deep Residual Learning for Image Recognition</a>.</li>
+<li>He, K. et al. (2016). <em>Identity Mappings in Deep Residual Networks</em>. ECCV.</li>
+<li>Zhang, H., Dauphin, Y. N. &amp; Ma, T. (2019). <a href="https://arxiv.org/abs/1901.09321" rel="noopener noreferrer" target="_blank">Fixup Initialization: Residual Learning Without Normalization</a>. ICLR.</li>
+<li>Xiong, R. et al. (2020). <a href="https://proceedings.mlr.press/v119/xiong20b.html" rel="noopener noreferrer" target="_blank">On Layer Normalization in the Transformer Architecture</a>. ICML.</li>
+<li>De, S. &amp; Smith, S. L. (2020). <a href="https://arxiv.org/abs/2002.10444" rel="noopener noreferrer" target="_blank">Batch Normalization Biases Residual Blocks Towards the Identity Function in Deep Networks</a>.</li>
+</ol>
+<h2 id="section-38">五、网络效率与结构先验</h2>
+<ol start="21">
+<li>LeCun, Y. et al. (1998). <a href="https://doi.org/10.1109/5.726791" rel="noopener noreferrer" target="_blank">Gradient-Based Learning Applied to Document Recognition</a>. Proceedings of the IEEE.</li>
+<li>Krizhevsky, A., Sutskever, I. &amp; Hinton, G. E. (2012). <a href="https://proceedings.neurips.cc/paper/2012/hash/c399862d3b9d76c8436e924a68c-Abstract.html" rel="noopener noreferrer" target="_blank">ImageNet Classification with Deep Convolutional Neural Networks</a>. NeurIPS.</li>
+<li>Xie, S. et al. (2017). <a href="https://arxiv.org/abs/1611.05431" rel="noopener noreferrer" target="_blank">Aggregated Residual Transformations for Deep Neural Networks</a>. CVPR.</li>
+<li>Chollet, F. (2017). <a href="https://arxiv.org/abs/1610.02357" rel="noopener noreferrer" target="_blank">Xception: Deep Learning with Depthwise Separable Convolutions</a>. CVPR.</li>
+<li>Howard, A. G. et al. (2017). <a href="https://arxiv.org/abs/1704.04861" rel="noopener noreferrer" target="_blank">MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications</a>.</li>
+</ol>
+<h2 id="section-39">六、Transformer 与长序列计算</h2>
+<ol start="26">
+<li>Vaswani, A. et al. (2017). <a href="https://arxiv.org/abs/1706.03762" rel="noopener noreferrer" target="_blank">Attention Is All You Need</a>. NeurIPS.</li>
+<li>Dosovitskiy, A. et al. (2020). <a href="https://arxiv.org/abs/2010.11929" rel="noopener noreferrer" target="_blank">An Image is Worth 16×16 Words: Transformers for Image Recognition at Scale</a>. ICLR.</li>
+<li>Dao, T. et al. (2022). <a href="https://arxiv.org/abs/2205.14135" rel="noopener noreferrer" target="_blank">FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness</a>. NeurIPS.</li>
+<li>Gu, A. &amp; Dao, T. (2023). <a href="https://arxiv.org/abs/2312.00752" rel="noopener noreferrer" target="_blank">Mamba: Linear-Time Sequence Modeling with Selective State Spaces</a>.</li>
+</ol>
+<h2 id="section-40">七、规模扩展与设计空间</h2>
+<ol start="30">
+<li>Tan, M. &amp; Le, Q. (2019). <a href="https://proceedings.mlr.press/v97/tan19a.html" rel="noopener noreferrer" target="_blank">EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks</a>. ICML.</li>
+<li>Kaplan, J. et al. (2020). <a href="https://arxiv.org/abs/2001.08361" rel="noopener noreferrer" target="_blank">Scaling Laws for Neural Language Models</a>.</li>
+<li>Radosavovic, I. et al. (2020). <a href="https://openaccess.thecvf.com/content_CVPR_2020/html/Radosavovic_Designing_Network_Design_Spaces_CVPR_2020_paper.html" rel="noopener noreferrer" target="_blank">Designing Network Design Spaces</a>. CVPR.</li>
+<li>Yang, G. &amp; Hu, E. J. (2021). <a href="https://arxiv.org/abs/2011.14522" rel="noopener noreferrer" target="_blank">Tensor Programs IV: Feature Learning in Infinite-Width Neural Networks</a>. ICML.</li>
+<li>Yang, G. et al. (2021). <a href="https://arxiv.org/abs/2110.04303" rel="noopener noreferrer" target="_blank">Tuning Large Neural Networks via Zero-Shot Hyperparameter Transfer</a>. NeurIPS.</li>
+<li>Hoffmann, J. et al. (2022). <a href="https://arxiv.org/abs/2203.15556" rel="noopener noreferrer" target="_blank">Training Compute-Optimal Large Language Models</a>. NeurIPS.</li>
+<li>Yang, G. et al. (2022). <a href="https://arxiv.org/abs/2203.03466" rel="noopener noreferrer" target="_blank">Tensor Programs V: Tuning Large Neural Networks via Zero-Shot Hyperparameter Transfer</a>.</li>
+<li>Fedus, W., Zoph, B. &amp; Shazeer, N. (2022). <a href="https://arxiv.org/abs/2101.03961" rel="noopener noreferrer" target="_blank">Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity</a>. JMLR.</li>
+<li>Zheng, C. et al. (2026). <a href="https://arxiv.org/abs/2603.00541" rel="noopener noreferrer" target="_blank">Spectral Condition for μP under Width-Depth Scaling</a>. arXiv Preprint.</li>
+<li>Zhu, C., Zhao, R. &amp; Lu, Z. (2026). <a href="https://arxiv.org/abs/2609.23087" rel="noopener noreferrer" target="_blank">Neural Spectral Capacity: Measuring and Designing Architectures from Network Specification Alone</a>. arXiv Preprint.</li>
+</ol>
+<hr/>
+<p><strong>全文核心观点：神经网络架构设计的真正进步，不是找到了一种永远正确的网络结构，而是逐步掌握了识别约束、控制信息流、稳定训练、分配资源、规划扩展和验证设计规律的方法。</strong></p>
+
+  </main>
+  <div class="footer">深度神经网络架构设计：历史、原则与方法论</div>
+</div>
+<a class="backtop" href="#top">↑ 返回顶部</a>
+</body>
+</html>
